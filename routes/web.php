@@ -16,3 +16,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('login',function () {
+    echo "precisa se logar";
+})->name("login");
+
+Route::middleware('auth')->group(function(){
+    Route::get('/home',function(){
+        echo "home";
+    });
+});
