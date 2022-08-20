@@ -10,6 +10,8 @@ class AuthController extends Controller
 
     public function logout(Request $request) {
         Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         return redirect()->route('login');
       }
 
@@ -17,19 +19,20 @@ class AuthController extends Controller
     public function authenticate(Request $request)
     {
         $credentials = $request->validate([
-            'username'=>['required'],
+            'username'=>['required','string'],
             //'email' => ['required', 'email'],
-            'password' => ['required'],
+            'password' => ['required','string'],
         ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+        $remember = $request->filled('remember');
 
+        if (Auth::attempt($credentials,$remember)) {
+            $request->session()->regenerate();
             return redirect()->intended('/');
         }
 
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+            'username' => __('auth.failed')
         ]);
     }
 }
