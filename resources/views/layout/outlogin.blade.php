@@ -10,5 +10,8 @@
 <body>
     @yield('container')
 </body>
-
+<script src="{{ asset('assets/libs/jquery/dist/jquery.min.js') }}"></script>
+<script src="{{ asset('assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('dist/js/sidebarmenu.js') }}"></script>
+<script src="{{ asset('dist/js/custom.js') }}"></script>
 </html>

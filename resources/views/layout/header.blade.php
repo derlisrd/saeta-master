@@ -66,6 +66,8 @@
                             My Balance</a>
                         <a class="dropdown-item" href="javascript:void(0)"><i class="ti-email m-r-5 m-l-5"></i>
                             Inbox</a>
+                        <a class="dropdown-item" href="{{ route('logout') }}"><i class="m-r-10 mdi mdi-logout-variant"></i></i>
+                                Cerrar sesion</a>
                     </ul>
                 </li>
                 <!-- ============================================================== -->
