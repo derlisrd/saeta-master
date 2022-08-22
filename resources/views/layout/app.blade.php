@@ -32,7 +32,7 @@
 
         <div class="page-wrapper">
 
-            @include('layout.breadcumb')
+
 
             <div class="container-fluid">
                 @yield('container_main')

@@ -16,6 +16,13 @@ class CreateSitesTable extends Migration
         Schema::create('sites', function (Blueprint $table) {
             $table->id();
             $table->string("name");
+            $table->string("domain");
+            $table->string("host");
+            $table->string("database");
+            $table->string("user_db");
+            $table->string("password_db");
+            $table->boolean("expirate")->nullable();
+            $table->date("date_created")->nullable();
             $table->timestamps();
         });
     }
