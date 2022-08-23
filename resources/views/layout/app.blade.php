@@ -31,9 +31,6 @@
         @include('layout.leftmenu')
 
         <div class="page-wrapper">
-
-
-
             <div class="container-fluid">
                 @yield('container_main')
             </div>
