@@ -6,17 +6,27 @@ use Illuminate\Database\Eloquent\Model;
 
 class Dominio extends Model
 {
-    protected $table = 'dominios';
     protected $fillable = [
         'cliente_id',
         'nombre',
         'subdominio',
         'dominio',
         'dns',
-        'type',
         'ip',
+        'type',
         'principal',
+        'premium',
         'vencimiento',
-        'premium'
     ];
+
+    protected $casts = [
+        'principal' => 'boolean',
+        'premium' => 'boolean',
+        'vencimiento' => 'date',
+    ];
+
+    public function cliente()
+    {
+        return $this->belongsTo(Cliente::class);
+    }
 }

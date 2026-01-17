@@ -5,33 +5,29 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Validate;
 use Livewire\Attributes\Title;
 
-new   class extends Component
+new class extends Component
 {
-    #[Validate('required|email')]
+    #[Validate('required|email|max:255')]
     public string $email = '';
-    
+
     #[Validate('required|min:6')]
     public string $password = '';
-    
-    public bool $remember = false;
-    public function render()
-{
-    return $this->view()
-         ->title('Ingresar'); 
-}
-    public function login(){
-         $this->validate([
-            'email' => 'required|max:255',
-            'password' => 'required|',
-        ]);
- 
-       if (Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
-            session()->regenerate();
-            return $this->redirect('/homedash', navigate: true);
-        }
-        return back()->with('error', 'Credenciales incorrectas');
-    }
 
+    public bool $remember = false;
+
+    public function login()
+    {
+        // Esto ejecutará las reglas definidas en los atributos #[Validate]
+        $this->validate();
+
+        if (Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+            session()->regenerate();
+            return $this->redirect('/auth/dash', navigate: true);
+        }
+
+        // Agregamos el error directamente al validador para que se muestre en el campo email o general
+        $this->addError('credenciales', 'Las credenciales no coinciden con nuestros registros.');
+    }
 };
 ?>
 
@@ -61,6 +57,9 @@ new   class extends Component
 
             <div>
                 <form wire:submit="login" class="flex flex-col gap-6">
+                    @if (session()->has('error'))
+                        <flux:error>{{ $message }}</flux:error>
+                    @endif
                 <flux:input wire:model="email"  label="Email" type="email" placeholder="email@example.com" />
                 @error('email') 
                     <flux:error>{{ $message }}</flux:error>

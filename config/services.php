@@ -14,6 +14,14 @@ return [
     |
     */
 
+    'cloudflare' => [
+        'api_token' => env('CLOUDFLARE_API_TOKEN'),
+    ],
+
+    'mysql' => [
+        'root_password' => env('MYSQL_ROOT_PASSWORD'),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('cliente_id')->unsigned()->nullable();
             $table->string('nombre')->nullable();
-            $table->string('subdominio')->nullable();
+            $table->string('subdominio')->unique()->nullable();
             $table->string('dominio');
             $table->string('dns')->nullable();
             $table->string('ip')->nullable();
