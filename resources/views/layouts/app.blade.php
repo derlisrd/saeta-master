@@ -7,12 +7,12 @@
         <title>{{ $title ?? config('app.name') }}</title>
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @fluxAppearance
+
         @livewireStyles
     </head>
     <body>
         {{ $slot }}
-         @fluxScripts
+
         @livewireScripts
     </body>
 </html>

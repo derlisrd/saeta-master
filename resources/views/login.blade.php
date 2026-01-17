@@ -1,13 +1,8 @@
-<?php
+@extends('layouts.app') {{-- Suponiendo que tu base se llama app.blade.php --}}
 
-use Livewire\Component;
+@section('titulo', 'Página de Inicio - Mi Proyecto')
 
-new class extends Component
-{
-    //
-};
-?>
-
+@section('contenido')
 <div class="flex min-h-screen">
     <div class="flex-1 flex justify-center items-center">
         <div class="w-80 max-w-80 space-y-6">
@@ -25,7 +20,7 @@ new class extends Component
                         </svg>
                     </div>
 
-                    <span class="text-xl font-semibold text-zinc-800 dark:text-white">flux</span>
+                    <span class="text-xl font-semibold text-zinc-800 dark:text-white">Nderasore</span>
                 </a>
             </div>
 
@@ -50,11 +45,9 @@ new class extends Component
                 <flux:button variant="primary" class="w-full">Log in</flux:button>
             </div>
 
-            <flux:subheading class="text-center">
-                First time around here? <flux:link href="#">Sign up for free</flux:link>
-            </flux:subheading>
         </div>
     </div>
 
 
 </div>
+@endsection
