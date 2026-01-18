@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/','home');
 
-Route::livewire('/login', 'pages::public.login');
+Route::livewire('/login', 'pages::public.login')->name('login');
 
 Route::middleware(['auth'])->group(function () {
 
