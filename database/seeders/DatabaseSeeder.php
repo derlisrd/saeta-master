@@ -6,6 +6,7 @@ use App\Models\Dominio;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;  // ✅ Added to generate random strings
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,11 +19,12 @@ class DatabaseSeeder extends Seeder
         $password = bcrypt(env('PASSWORD_SEED', 'decano'));
         $user = User::factory()->create([
             'name' => 'Derlis',
+            'username'=>'derlis',
             'email' => env('EMAIL_SEED','derlisruizdiaz@hotmail.com'),
             'password' => $password
         ]);
-        $dominio = Dominio::create([
-            'cliente_id'=>$user->id,
+         Dominio::create([
+            'user_id'=>$user->id,
             'nombre'=> 'local',
             'protocol'=>'http://',
             'subdominio'=> '192.168.100.31:',
@@ -33,6 +35,7 @@ class DatabaseSeeder extends Seeder
             'principal'=>true,
             'premium'=>true,
             'vencimiento'=>now()->addDays(15),
+            'api_key' => Str::random(32),  // ✅ Added a random API key
         ]);
     }
 }

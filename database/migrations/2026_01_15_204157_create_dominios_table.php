@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('dominio');
             $table->string('dns')->nullable();
             $table->string('ip')->nullable();
+            $table->text('api_key')->nullable();
             $table->string('type')->default('A')->nullable();
             $table->boolean('principal')->default(0);
             $table->boolean('premium')->default(0);

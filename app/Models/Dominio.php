@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Dominio extends Model
 {
     protected $fillable = [
-        'cliente_id',
+        'user_id',
         'nombre',
         'subdominio',
         'dominio',
@@ -17,6 +17,7 @@ class Dominio extends Model
         'principal',
         'premium',
         'vencimiento',
+        'api_key'
     ];
 
     protected $casts = [
@@ -25,8 +26,8 @@ class Dominio extends Model
         'vencimiento' => 'date',
     ];
 
-    public function cliente()
+    public function user()
     {
-        return $this->belongsTo(Cliente::class);
+        return $this->belongsTo(User::class);
     }
 }
