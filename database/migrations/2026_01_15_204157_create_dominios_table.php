@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('dominios', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('cliente_id')->unsigned()->nullable();
+            $table->bigInteger('user_id')->unsigned()->nullable();
             $table->string('nombre')->nullable();
+            $table->string('protocol')->nullable();
             $table->string('subdominio')->unique()->nullable();
             $table->string('dominio');
             $table->string('dns')->nullable();
@@ -23,7 +24,7 @@ return new class extends Migration
             $table->boolean('principal')->default(0);
             $table->boolean('premium')->default(0);
             $table->date('vencimiento');
-            $table->foreign('cliente_id')->on('clientes')->references('id');
+            $table->foreign('user_id')->on('users')->references('id');
             $table->timestamps();
         });
     }
