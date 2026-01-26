@@ -7,7 +7,7 @@
     <div class="flex min-h-screen items-center justify-center p-6">
         <div class="w-full max-w-md">
             <div class="text-center mb-10">
-                <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-2xl shadow-indigo-500/20 mb-4">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl from-indigo-500 to-purple-600 shadow-2xl shadow-indigo-500/20 mb-4">
                     <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
@@ -16,7 +16,7 @@
                 <p class="text-slate-400 mt-2 font-medium">Control Central de Operaciones</p>
             </div>
 
-            <div class="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8 rounded-[2rem] shadow-2xl">
+            <div class="bg-slate-900/50 backdrop-blur-xl border border-slate-800 p-8  shadow-2xl">
                 
                 @if ($errors->any())
                     <div class="mb-6 flex items-center gap-3 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
