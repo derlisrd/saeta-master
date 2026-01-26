@@ -1,18 +1,9 @@
 <?php
 
+use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\LoginController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::view('/','home');
-
-Route::livewire('/login', 'pages::public.login')->name('login');
-
-Route::middleware(['auth'])->group(function () {
-
-    Route::prefix('/auth')->group(function(){
-        Route::livewire('/dash', 'pages::auth.dash');
-        Route::livewire('/dominios', 'pages::auth.dominios');
-    });
-   
-});
+Route::get('/login',[AdminAuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login',[AdminAuthController::class, 'login'])->name('admin.login.submit');
