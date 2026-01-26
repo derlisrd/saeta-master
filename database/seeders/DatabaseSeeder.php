@@ -16,12 +16,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
-        $password = bcrypt(env('PASSWORD_SEED', 'decano'));
+        $password = 'decano'; //env('PASSWORD_SEED', 'decano');
         $user = User::factory()->create([
             'name' => 'Derlis',
             'username'=>'derlis',
             'email' => env('EMAIL_SEED','derlisruizdiaz@hotmail.com'),
-            'password' => $password
+            'password' => bcrypt( $password )
         ]);
          Dominio::create([
             'user_id'=>$user->id,
@@ -29,13 +29,14 @@ class DatabaseSeeder extends Seeder
             'protocol'=>'http://',
             'subdominio'=> '192.168.100.31:',
             'dominio'=>'8001',
+            'path'=>'api',
             'dns'=>'1',
             'ip'=>'1',
             'type'=>'A',
             'principal'=>true,
             'premium'=>true,
             'vencimiento'=>now()->addDays(15),
-            'api_key' => Str::random(32),  // ✅ Added a random API key
+            'api_key' => 'WKvn3xFC3JflK8lkIRHVSe60hBFSEjApMZyCnEdwUc' // Str::random(32), 
         ]);
     }
 }

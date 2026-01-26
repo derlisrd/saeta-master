@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('subdominio')->unique()->nullable();
             $table->string('dominio');
             $table->string('dns')->nullable();
+            $table->string('path')->nullable();
             $table->string('ip')->nullable();
             $table->text('api_key')->nullable();
             $table->string('type')->default('A')->nullable();

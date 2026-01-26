@@ -12,6 +12,7 @@ class Dominio extends Model
         'subdominio',
         'dominio',
         'dns',
+        'path',
         'ip',
         'type',
         'principal',
