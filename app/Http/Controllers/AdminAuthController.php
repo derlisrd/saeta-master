@@ -19,11 +19,13 @@ class AdminAuthController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
-
+        
         if (Auth::guard('web')->attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
             return redirect()->intended('/admin/dashboard');
         }
+
+        //dd($credentials);
 
         return back()->withErrors([
             'email' => 'Las credenciales no coinciden.',
@@ -36,6 +38,6 @@ class AdminAuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/admin/login');
+        return redirect('/login');
     }
 }
