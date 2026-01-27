@@ -29,6 +29,7 @@ Route::group(['middleware' => ['auth:web']], function () {
         Route::get('/clientes',[ClientesController::class,'lista'])->name('clientes-lista');
         Route::get('/clientes/crear',[ClientesController::class, 'formulario'])->name('clientes-crear');
         Route::post('/clientes/crear',[ClientesController::class, 'store'])->name('clientes-store');
+        Route::get('/clientes/{id}',[ClientesController::class, 'find'])->name('clientes-detalle');
     });
 
 

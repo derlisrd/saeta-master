@@ -18,6 +18,14 @@ class ClientesController extends Controller
         return view ('admin.clientes.crear');
     }
 
+    public function find($id)
+    {
+        // Cargamos el usuario con sus dominios y la zona relacionada a cada dominio
+        $cliente = User::with(['dominios.zona'])->findOrFail($id);
+
+        return view('admin.clientes.detalle', compact('cliente'));
+    }
+
     public function store(Request $request){
         $request->validate([
             'name'     => 'required|string|max:255',

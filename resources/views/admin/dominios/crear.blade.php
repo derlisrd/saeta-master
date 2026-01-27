@@ -8,19 +8,33 @@
             class="bg-zinc-900/50 border border-zinc-700 p-8 rounded-2xl shadow-xl backdrop-blur-sm">
             @csrf
 
-            {{-- Alerta de Error Mejorada --}}
             @if ($errors->any())
                 <div class="mb-6 flex items-center p-4 border-l-4 border-red-500 bg-red-500/10 text-red-400 rounded-r-lg">
                     <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                            clip-rule="evenodd"></path>
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
                     </svg>
                     <span class="text-sm font-medium">{{ $errors->first() }}</span>
                 </div>
             @endif
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                {{-- NUEVO: Select Cliente (Ocupa 2 columnas para destacar) --}}
+                <div class="flex flex-col gap-2 md:col-span-2 bg-sky-500/5 p-4 rounded-xl border border-sky-500/10 mb-2">
+                    <label class="text-sky-400 text-xs font-bold uppercase tracking-wider ml-1 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                        Asignar Propietario (Cliente)
+                    </label>
+                    <select name="user_id" required
+                        class="bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-sky-500/50 transition-all">
+                        <option value="" disabled {{ old('user_id') ? '' : 'selected' }}>Seleccione el cliente responsable...</option>
+                        @foreach ($clientes as $cliente)
+                            <option value="{{ $cliente->id }}" {{ old('user_id') == $cliente->id ? 'selected' : '' }}>
+                                {{ $cliente->name }} ({{ $cliente->email }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
                 {{-- Input: Nombre --}}
                 <div class="flex flex-col gap-2">
@@ -41,12 +55,10 @@
                     <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Zona Cloudflare</label>
                     <select name="zone_id"
                         class="bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-sky-500/50 transition-all">
-                        <option value="" disabled {{ old('zone_id') ? '' : 'selected' }}>Seleccione la zona raíz...
-                        </option>
-
+                        <option value="" disabled {{ old('zone_id') ? '' : 'selected' }}>Seleccione la zona raíz...</option>
                         @foreach ($zonas as $zona)
                             <option value="{{ $zona->zone_id }}" {{ old('zone_id') == $zona->zone_id ? 'selected' : '' }}>
-                                {{ $zona->dominio }} ({{ $zona->zone_id }})
+                                {{ $zona->dominio }}
                             </option>
                         @endforeach
                     </select>
@@ -57,10 +69,8 @@
                     <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Protocolo</label>
                     <select name="protocolo"
                         class="bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-sky-500/50 transition-all">
-                        <option value="https://" {{ old('protocolo') == 'https://' ? 'selected' : '' }}>HTTPS (Recomendado)
-                        </option>
-                        <option value="http://" {{ old('protocolo') == 'http://' ? 'selected' : '' }}>HTTP (No seguro)
-                        </option>
+                        <option value="https://" {{ old('protocolo') == 'https://' ? 'selected' : '' }}>HTTPS (Recomendado)</option>
+                        <option value="http://" {{ old('protocolo') == 'http://' ? 'selected' : '' }}>HTTP (No seguro)</option>
                     </select>
                 </div>
 
@@ -84,8 +94,7 @@
 
                 {{-- Input: Vencimiento --}}
                 <div class="flex flex-col gap-2 md:col-span-2">
-                    <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Fecha de
-                        Vencimiento</label>
+                    <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Fecha de Vencimiento</label>
                     <input name="vencimiento" type="date" value="{{ old('vencimiento') }}"
                         class="bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-sky-500/50 transition-all" />
                 </div>
@@ -94,15 +103,7 @@
 
             <div class="mt-10 flex justify-center">
                 <button type="submit"
-                    class="group relative w-full max-w-md flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-sky-600 hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-sky-500 transition-all duration-200 shadow-lg shadow-sky-500/20 uppercase tracking-widest">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                        <svg class="h-5 w-5 text-sky-300 group-hover:text-white transition-colors" fill="currentColor"
-                            viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </span>
+                    class="group relative w-full max-w-md flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-sky-600 hover:bg-sky-500 transition-all duration-200 shadow-lg shadow-sky-500/20 uppercase tracking-widest">
                     Crear Nuevo Dominio
                 </button>
             </div>
