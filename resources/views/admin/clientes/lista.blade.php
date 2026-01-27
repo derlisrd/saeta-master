@@ -20,7 +20,7 @@
                 <h2 class="text-xl font-semibold text-white">Clientes Registrados</h2>
                 <p class="text-zinc-500 text-xs mt-1">Usuarios con acceso al sistema y sus activos</p>
             </div>
-            <a href="{{ route('clientes-crear') }}"
+            <a href="{{ route('clientes-formulario') }}"
                 class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all shadow-lg shadow-sky-500/20 uppercase">
                 + Nuevo cliente
             </a>

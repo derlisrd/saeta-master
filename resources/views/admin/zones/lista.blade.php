@@ -17,7 +17,7 @@
                 <h2 class="text-xl font-semibold text-white">Zonas Configuradas</h2>
                 <p class="text-zinc-500 text-xs mt-1">Gestión de zonas raíz para registros DNS</p>
             </div>
-            <a href="{{ route('zonas-crear') }}" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all shadow-lg shadow-sky-500/20 uppercase tracking-widest">
+            <a href="{{ route('zonas-formulario') }}" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all shadow-lg shadow-sky-500/20 uppercase tracking-widest">
                 + Nueva Zona
             </a>
         </div>

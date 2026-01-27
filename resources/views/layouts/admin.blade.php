@@ -52,8 +52,8 @@
                             class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('dominios-lista') ? $active : $inactive }}">
                             Lista de Dominios
                         </a>
-                        <a href="{{ route('dominios-crear') }}"
-                            class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('dominios-crear') ? $active : $inactive }}">
+                        <a href="{{ route('dominios-formulario') }}"
+                            class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('dominios-formulario') ? $active : $inactive }}">
                             Agregar Nuevo
                         </a>
                     </div>
@@ -75,8 +75,8 @@
                             class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('zonas-lista') ? $active : $inactive }}">
                             Ver Zonas
                         </a>
-                        <a href="{{ route('zonas-crear') }}"
-                            class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('zonas-crear') ? $active : $inactive }}">
+                        <a href="{{ route('zonas-formulario') }}"
+                            class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('zonas-formulario') ? $active : $inactive }}">
                             Crear zona
                         </a>
                     </div>
@@ -96,8 +96,8 @@
                             class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('clientes-lista') ? $active : $inactive }}">
                             Ver clientes
                         </a>
-                        <a href="{{ route('clientes-crear') }}"
-                            class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('clientes-crear') ? $active : $inactive }}">
+                        <a href="{{ route('clientes-formulario') }}"
+                            class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('clientes-formulario') ? $active : $inactive }}">
                             Crear cliente
                         </a>
                     </div>

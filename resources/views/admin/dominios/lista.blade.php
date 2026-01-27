@@ -23,7 +23,7 @@
 <div class="bg-zinc-900/50 border border-zinc-700 rounded-2xl shadow-xl backdrop-blur-sm overflow-hidden">
     <div class="p-6 border-b border-zinc-800 flex justify-between items-center">
         <h2 class="text-xl font-semibold text-white">Lista de Dominios</h2>
-        <a href="{{ route('dominios-crear') }}" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all shadow-lg shadow-sky-500/20 uppercase">
+        <a href="{{ route('dominios-formulario') }}" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold py-2 px-4 rounded-lg transition-all shadow-lg shadow-sky-500/20 uppercase">
             + Nuevo Dominio
         </a>
     </div>

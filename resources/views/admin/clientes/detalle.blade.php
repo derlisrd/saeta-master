@@ -43,7 +43,7 @@
         {{-- Acción Rápida --}}
         <div class="bg-sky-600/10 border border-sky-500/20 p-6 rounded-2xl flex flex-col justify-center gap-3">
             <h3 class="text-sky-400 font-bold text-sm uppercase text-center">Gestión Rápida</h3>
-            <a href="{{ route('dominios-crear', ['user_id' => $cliente->id]) }}" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold py-3 rounded-xl transition-all text-center shadow-lg shadow-sky-500/20">
+            <a href="{{ route('dominios-formulario', ['user_id' => $cliente->id]) }}" class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold py-3 rounded-xl transition-all text-center shadow-lg shadow-sky-500/20">
                 + ASIGNAR NUEVO DOMINIO
             </a>
             <button class="border border-zinc-700 text-zinc-400 hover:text-white hover:bg-zinc-800 text-xs font-bold py-3 rounded-xl transition-all">
