@@ -8,6 +8,7 @@ class Dominio extends Model
 {
     protected $fillable = [
         'user_id',
+        'zona_id',
         'nombre',
         'subdominio',
         'dominio',
@@ -16,6 +17,10 @@ class Dominio extends Model
         'ip',
         'type',
         'principal',
+        'bd_pass',
+        'bd_prefix',
+        'bd_user',
+        'bd_name',
         'premium',
         'vencimiento',
         'api_key'
@@ -30,5 +35,11 @@ class Dominio extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function zona()
+    {
+        // Relacionamos zone_id de Dominios con zone_id de Zones
+        return $this->belongsTo(Zone::class, 'zone_id', 'zone_id');
     }
 }

@@ -10,6 +10,6 @@ class Zone extends Model
     protected $fillable = [
         'id',
         'zone_id',
-        'name'
+        'dominio'
     ];
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dominio;
+use App\Models\User;
 use App\Models\Zone;
 use App\Services\CloudflareService;
 use App\Services\VPSService;
@@ -21,35 +22,44 @@ class DominioController extends Controller
         $this->vps = $vps;
     }
 
-    public function crearDominioFormulario(){
-        
+    public function formulario(){
+
         $zonas = Zone::all();
-        return view('admin.dominios.crear',['zonas'=>$zonas]);
+        $clientes = User::orderBy('name')->get(); // Traemos todos los usuarios
+
+        return view('admin.dominios.crear', [
+            'zonas' => $zonas,
+            'clientes' => $clientes
+        ]);
         
     }
 
 
+    public function lista(){
+
+        return view('admin.dominios.lista',['dominios'=>Dominio::all()]);
+    }
 
 
 
-
-    public function crearDominio(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
-            'user_id' => 'nullable|exists:users,id',
-            'nombre' => 'required|string',
-            'subdominio' => 'required|string|unique:dominios,subdominio',
-            'dominio' => 'required|string',
-            'ip' => 'required|ip',
-            'type' => 'nullable|string|in:A,CNAME,AAAA',
-            'principal' => 'nullable|boolean',
-            'premium' => 'nullable|boolean',
-            'vencimiento' => 'required|date',
-            'vps_host' => 'required|string', // IP del VPS
-            'vps_user' => 'required|string', // Usuario SSH
-            'vps_password' => 'required|string', // Contraseña SSH
-            'repo_core' => 'required|url', // Repositorio Laravel
-            'repo_admin' => 'required|url', // Repositorio React
+            'nombre'      => 'required|string|max:255|unique:dominios,nombre',
+            'subdominio'  => 'required|string|max:255',
+            'zone_id'     => 'required|exists:zones,zone_id', // Valida que el ID exista en tu tabla zones
+            'protocolo'   => 'required|string',
+            'ip'          => 'required|ip',
+            'type'        => 'required|in:A,AAAA,CNAME',
+            'vencimiento' => 'nullable|date',
         ]);
+
+        // Creamos el dominio con todos los datos, incluyendo el zone_id
+        $dominio = Dominio::create($request->all());
+
+        return redirect()->route('dominios-lista')
+            ->with('success', "Dominio {$dominio->nombre} vinculado correctamente a la zona.");
     }
+
+    
 }

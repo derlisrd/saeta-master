@@ -1,12 +1,22 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
-@import '../../vendor/livewire/flux/dist/flux.css';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
 
-@custom-variant dark (&:where(.dark, .dark *));
 
 @font-face {
     font-family: 'ContiSans';
-    src: url('./fonts/ContiSans.woff2') format('woff2');
+    src: url('./ContiSansLight.woff2') format('woff2');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'ContiSans';
+    src: url('./ContiSans.woff2') format('woff2');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
@@ -14,24 +24,13 @@
 
 @font-face {
     font-family: 'ContiSans';
-    src: url('./fonts/ContiSansBold.woff2') format('woff2');
+    src: url('./ContiSansBold.woff2') format('woff2');
     font-weight: 700;
-    font-style: normal;
+    font-style: bold;
     font-display: swap;
 }
 
-@font-face {
-    font-family: 'ContiSans';
-    src: url('./fonts/ContiSansLight.woff2') format('woff2');
-    font-weight: 100;
-    font-style: normal;
-    font-display: swap;
-}
-
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
 @theme {
+    --variant-dark: (&:where(.dark, .dark *));
     --font-sans: "ContiSans", ui-sans-serif, system-ui, sans-serif;
 }
