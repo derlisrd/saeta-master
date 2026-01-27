@@ -18,14 +18,14 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $password = Hash::make('decano10');
-        $admin = Admin::create([
+        Admin::create([
             'name' => 'Derlis',
             'email' => 'derlisruizdiaz@hotmail.com',
             'password' =>$password
         ]);
         // User::factory(10)->create();
         $password = Hash::make('decano10'); //env('PASSWORD_SEED', 'decano');
-        $user = User::factory()->create([
+       /*  $user = User::factory()->create([
             'name' => 'Derlis',
             'username'=>'derlis',
             'email' => env('EMAIL_SEED','derlisruizdiaz@hotmail.com'),
@@ -45,6 +45,6 @@ class DatabaseSeeder extends Seeder
             'premium'=>true,
             'vencimiento'=>now()->addDays(15),
             'api_key' => 'WKvn3xFC3JflK8lkIRHVSe60hBFSEjApMZyCnEdwUc' // Str::random(32), 
-        ]);
+        ]); */
     }
 }

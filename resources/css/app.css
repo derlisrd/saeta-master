@@ -4,12 +4,34 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@font-face {
+    font-family: 'ContiSans';
+    src: url('./fonts/ContiSans.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'ContiSans';
+    src: url('./fonts/ContiSansBold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'ContiSans';
+    src: url('./fonts/ContiSansLight.woff2') format('woff2');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: "ContiSans", ui-sans-serif, system-ui, sans-serif;
 }

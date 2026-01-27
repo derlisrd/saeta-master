@@ -15,7 +15,9 @@ return [
     */
 
     'cloudflare' => [
-        'api_token' => env('CLOUDFLARE_API_TOKEN'),
+        'api_url' => env('CLOUDFLARE_API_URL'),
+        'api_token' => env('CLOUDFLARE_API_KEY'),
+        'account_id'=> env('CLOUDFLARE_ACCOUNT_ID')
     ],
 
     'mysql' => [

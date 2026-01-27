@@ -10,7 +10,7 @@ class AdminAuthController extends Controller
 {
     public function showLoginForm()
     {
-        return view('auth.admin-login');
+        return view('auth.login');
     }
 
     public function login(Request $request)
@@ -22,7 +22,7 @@ class AdminAuthController extends Controller
         
         if (Auth::guard('web')->attempt($credentials, $request->filled('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended('/admin/dashboard');
+            return redirect('/admin');
         }
 
         //dd($credentials);
