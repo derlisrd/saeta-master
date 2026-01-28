@@ -69,7 +69,7 @@ server {
     location ~ ^/v1/index\\.php(/|$) {
         fastcgi_pass unix:/run/php/php8.2-fpm.sock;
         fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME {$basePath}/public/index.php;
+        fastcgi_param SCRIPT_FILENAME {$path}/public/index.php;
         include fastcgi_params;
     }
 
