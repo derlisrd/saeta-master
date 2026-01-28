@@ -26,10 +26,11 @@ class DesplegarProyectoJob implements ShouldQueue
 
     public function handle()
     {
-        $this->dominio->load(['repositorio', 'vm']);
+        $this->dominio->load(['repositorio', 'vm', 'user']);
 
         $vm = $this->dominio->vm;
         $repo = $this->dominio->repositorio;
+        $owner = $this->dominio->user;
 
         // VALIDACIÓN DE SEGURIDAD
         if (!$repo) {
@@ -39,11 +40,17 @@ class DesplegarProyectoJob implements ShouldQueue
         $vm = $this->dominio->vm;
         $repo = $this->dominio->repositorio;
         $fullDomain = "{$this->dominio->subdominio}.{$this->dominio->dominio}";
-        $path = "/var/www/html/{$fullDomain}";
+        $path = "/var/www/html/{$fullDomain}/". $this->dominio->path;
 
-        $dbName = $this->dominio->bd_name;
-        $dbUser = $this->dominio->bd_user;
-        $dbPass = $this->dominio->bd_pass;
+        $dbName = $this->dominio->db_name;
+        $dbUser = $this->dominio->db_user;
+        $dbPass = $this->dominio->db_pass;
+        $dbPort = $this->dominio->db_port;
+        $apiKey = $this->dominio->api_key;
+        $dbConnection = $this->dominio->db_connection;
+
+        $emailUser = $this->dominio->user->email;
+        $passworUser = $this->dominio->user->password;
 
         try {
             $ssh = new SSH2($vm->ip, $vm->puerto);
@@ -55,6 +62,38 @@ class DesplegarProyectoJob implements ShouldQueue
 
             // Aumentar el tiempo de espera para comandos largos (como composer install)
             $ssh->setTimeout(300);
+
+            $envContent = "APP_NAME={$this->dominio->nombre}
+APP_ENV=production
+APP_KEY=
+APP_DEBUG=false
+APP_URL=https://{$fullDomain}
+
+LOG_CHANNEL=stack
+LOG_LEVEL=error
+
+DB_CONNECTION={$dbConnection}
+DB_HOST=127.0.0.1
+DB_PORT={$dbPort}
+DB_DATABASE={$dbName}
+DB_USERNAME={$dbUser}
+DB_PASSWORD={$dbPass}
+
+BROADCAST_DRIVER=log
+CACHE_DRIVER=file
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+X_API_KEY={$apiKey}
+URL_API_RUC_PARAGUAY=https://turuc.com.py/api/contribuyente
+API_KEY_RUC_PARAGUAY=0
+
+# Datos para el Seeder del nuevo proyecto
+USER_SEED=\"{$owner->email}\"
+EMAIL_SEED=\"{$owner->email}\"
+PASSWORD_SEED=\"{$owner->password}\"
+";
 
             $commands = [
                 // 1. Preparar Directorio
@@ -71,37 +110,31 @@ class DesplegarProyectoJob implements ShouldQueue
                 "git clone -b {$repo->branch} {$repo->url_git} {$path}",
 
                 // 4. Configuración de Entorno (.env)
-                "cd {$path} && cp .env.example .env",
-                "cd {$path} && sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=pgsql/' .env",
-                "cd {$path} && sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env",
-                "cd {$path} && sed -i 's/DB_PORT=.*/DB_PORT=5432/' .env",
-                "cd {$path} && sed -i 's/DB_DATABASE=.*/DB_DATABASE={$dbName}/' .env",
-                "cd {$path} && sed -i 's/DB_USERNAME=.*/DB_USERNAME={$dbUser}/' .env",
-                "cd {$path} && sed -i 's/DB_PASSWORD=.*/DB_PASSWORD={$dbPass}/' .env",
+                "echo \"{$envContent}\" > {$path}/.env",
 
                 // 5. Dependencias y Artisan
                 "cd {$path} && composer install --no-dev --optimize-autoloader",
                 "cd {$path} && php artisan key:generate",
                 "cd {$path} && php artisan jwt:secret --force",
-                "cd {$path} && php artisan migrate --force",
+                "cd {$path} && php artisan migrate --seed",
 
                 // 6. Permisos Finales
-                "sudo chown -R www-data:www-data {$path}/storage {$path}/bootstrap/cache",
-                "sudo chmod -R 775 {$path}/storage",
+                "sudo chown -R www-data:www-data {$path}",
+                "sudo chmod -R 755 {$path}",
+                "sudo chmod -R 775 {$path}/storage {$path}/bootstrap/cache",
             ];
 
             foreach ($commands as $cmd) {
                 Log::info("Ejecutando en {$vm->nombre}: {$cmd}");
-                $ssh->exec($cmd);
+                //$ssh->exec($cmd);
             }
 
             // MARCAR COMO DESPLEGADO
             $this->dominio->update(['desplegado' => true]);
 
             Log::info("✅ Despliegue completado para {$fullDomain}");
-
         } catch (\Exception $e) {
-            Log::error( $e->getMessage());
+            Log::error($e->getMessage());
         }
     }
 }

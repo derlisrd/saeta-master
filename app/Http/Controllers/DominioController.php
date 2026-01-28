@@ -37,92 +37,73 @@ class DominioController extends Controller
 
     public function store(Request $request)
     {
+        // 1. Buscamos la VM para obtener la IP real
         $vm = VM::findOrFail($request->vm_id);
-        $repo = Repositorio::findOrFail($request->repositorio_id);
 
-        $prefix = Str::snake($request->subdominio . '_' . $repo->nombre);
-        $dbUser = Str::limit($prefix . '_user', 63, ''); // Postgres limita a 63 caracteres
-        $dbName = Str::limit($prefix . '_db', 63, '');
-        $dbPass = Str::random(16); // Contraseña segura de 16 caracteres
-
-        $request->merge([
-            'ip' => $vm->ip,
-            'db_user' => $dbUser,
-            'db_name' => $dbName,
-            'db_pass' => $dbPass
-        ]);
-        // 2. Inyectamos la IP de la VM en el request para que pase la validación
-        $request->merge(['ip' => $vm->ip]);
-
+        // 2. Validación estricta
         $request->validate([
-            'user_id'     => 'required|exists:users,id',
-            'vm_id'       => 'required|exists:vms,id', // Validamos que el ID de la VM sea real
-            'nombre'      => 'required|string|max:255|unique:dominios,nombre',
+            'user_id'        => 'required|exists:users,id',
+            'vm_id'          => 'required|exists:vms,id',
             'repositorio_id' => 'required|exists:repositorios,id',
-            'subdominio'  => 'required|string|max:255',
-            'zone_id'     => 'required|exists:zones,zone_id',
-            'protocolo'   => 'required|string',
-            'ip'          => 'required|ip', // Ahora pasará porque la inyectamos arriba
-            'type'        => 'required|in:A,AAAA,CNAME',
-            'vencimiento' => 'required|date',
+            'nombre'         => 'required|string|max:255',
+            'subdominio'     => 'required|string|max:255|unique:dominios,subdominio',
+            'zone_id'        => 'required|exists:zones,id',
+            'vencimiento'    => 'required|date',
+
+            // Campos que vienen del Paso 2 del formulario
+            'db_connection'  => 'required|in:pgsql,mysql,sqlite',
+            'db_name'        => 'required|string',
+            'db_user'        => 'required|string',
+            'db_pass'        => 'required|string',
+            'db_port'        => 'required|numeric',
+            'api_key'        => 'required|string',
         ]);
 
-        $zonaDB = Zone::where('zone_id', $request->zone_id)->firstOrFail();
+        // 3. Preparar datos adicionales
+        $zonaDB = Zone::where('id', $request->zone_id)->firstOrFail();
 
-        // 2. Preparamos los datos y agregamos manualmente el campo 'dominio'
         $data = $request->all();
-        $data['dominio'] = $zonaDB->dominio; // Aquí llenamos lo que falta
+        $data['dominio'] = $zonaDB->dominio;
+        $data['zone_id'] = $request->zone_id;
+        $data['ip']      = $vm->ip; // Inyectamos la IP de la VM para Cloudflare y DB
+        $data['protocol'] = 'https://'; // Por defecto
 
-        // 3. Ahora sí, creamos el registro local
+        // 4. Guardar en Base de Datos Local
         $dominio = Dominio::create($data);
-        // 2. Configuración de Cloudflare
+
+        // 5. Sincronización con Cloudflare
         $apiToken = config('services.cloudflare.api_token');
-
-        $url = "https://api.cloudflare.com/client/v4/zones/{$request->zone_id}/dns_records";
-
-
-
-        // 5. Ejecutar la petición (Igual al cURL)
-        $response = Http::withHeaders([
+        $cfUrl = "https://api.cloudflare.com/client/v4/zones/{$zonaDB->zone_id}/dns_records";
+        Log::info('url '.$cfUrl);
+        /* $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $apiToken,
             'Content-Type'  => 'application/json',
-        ])->post($url, [
+        ])->post($cfUrl, [
             'name'    => $request->subdominio,
-            'type'    => $request->type,
-            'content' => $request->ip,
+            'type'    => 'A',
+            'content' => $vm->ip,
             'ttl'     => 3600,
-            'proxied' => false, // Cambiar a true si quieres el proxy (nube naranja)
-            'comment' => 'Creado desde el panel Admin'
-        ]);
+            'proxied' => false, // Nube naranja activada
+            'comment' => 'Dominio creado desde el Panel Maestro'
+        ]); */
 
-        if ($response->successful()) {
+        /* if ($response->successful()) {
+            // 6. LANZAR EL JOB DE DESPLIEGUE SSH
+            // Pasamos el objeto $dominio que ya tiene las credenciales de DB y API Key
             DesplegarProyectoJob::dispatch($dominio);
+
             return redirect()->route('dominios-lista')
-                ->with('success', "Dominio registrado y sincronizado con Cloudflare.");
-        }
+                ->with('success', "Dominio registrado. El despliegue de la infraestructura ha comenzado.");
+        } */
 
-        // 2. Si falla, registramos un LOG detallado
-        $errorData = $response->json();
-
-        Log::error('Fallo en Sincronización Cloudflare', [
-            'usuario_id'   => auth()->id() ?? 'Sistema',
-            'zone_id'      => $request->zone_id,
-            'subdominio'   => $request->subdominio,
-            'status_code'  => $response->status(),
-            'cf_response'  => $errorData, // Aquí guardamos todo lo que Cloudflare nos respondió
-            'payload_sent' => [           // También guardamos qué fue lo que enviamos
-                'name' => $request->subdominio,
-                'type' => $request->type,
-                'content' => $request->ip
-            ]
-        ]);
-
-        // 3. Informar al usuario
-        $mensaje = $errorData['errors'][0]['message'] ?? 'Error desconocido en la API';
+        // Si falla Cloudflare, registramos el error pero el dominio ya quedó en nuestra DB
+        //Log::error('Error Cloudflare API', ['res' => $response->json()]);
+        DesplegarProyectoJob::dispatch($dominio);
         return redirect()->route('dominios-lista')
-            ->with('warning', "Guardado local, pero Cloudflare falló. Revisa los logs: " . $mensaje);
-
+            ->with('warning', "Dominio guardado localmente, pero falló la sincronización DNS.");
     }
+
+    
 
 
     public function reintentarDespliegue($id)

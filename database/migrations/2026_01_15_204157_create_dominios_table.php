@@ -27,7 +27,9 @@ return new class extends Migration
             $table->boolean('principal')->default(0);
             $table->boolean('premium')->default(0);
             $table->string('db_prefix')->nullable();
+            $table->string('db_connection')->nullable();
             $table->string('db_name')->nullable();
+            $table->string('db_port')->nullable();
             $table->string('db_user')->nullable();
             $table->string('db_pass')->nullable();
             $table->boolean('desplegado')->default(0);
