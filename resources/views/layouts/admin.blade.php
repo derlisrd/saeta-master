@@ -91,7 +91,8 @@
                             </path>
                         </svg>
                     </button>
-                    <div id="sub-clientes" class="{{ request()->routeIs('clientes-*') ? '' : 'hidden' }} pl-6 space-y-1">
+                    <div id="sub-clientes"
+                        class="{{ request()->routeIs('clientes-*') ? '' : 'hidden' }} pl-6 space-y-1">
                         <a href="{{ route('clientes-lista') }}"
                             class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('clientes-lista') ? $active : $inactive }}">
                             Ver clientes
@@ -99,6 +100,50 @@
                         <a href="{{ route('clientes-formulario') }}"
                             class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('clientes-formulario') ? $active : $inactive }}">
                             Crear cliente
+                        </a>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <button onclick="toggleSubmenu('sub-repos', 'arrow-repos')"
+                        class="w-full flex items-center justify-between px-4 py-2 rounded-lg transition {{ request()->routeIs('repositorios-*') ? 'bg-gray-800 text-white' : $inactive }}">
+                        <span>Stacks / Repos</span>
+                        <svg id="arrow-repos"
+                            class="w-4 h-4 transition-transform duration-200 {{ request()->routeIs('repositorios-*') ? 'rotate-180' : '' }}"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                    </button>
+                    <div id="sub-repos"
+                        class="{{ request()->routeIs('repositorios-*') ? '' : 'hidden' }} pl-6 space-y-1">
+                        <a href="{{ route('repositorios-lista') }}"
+                            class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('repositorios-lista') ? $active : $inactive }}">
+                            Ver Repositorios
+                        </a>
+                        <a href="{{ route('repositorios-formulario') }}"
+                            class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('repositorios-formulario') ? $active : $inactive }}">
+                            Configurar Nuevo
+                        </a>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <button onclick="toggleSubmenu('sub-vms', 'arrow-vms')"
+                        class="w-full flex items-center justify-between px-4 py-2 rounded-lg transition {{ $inactive }}">
+                        <span>Servidores</span>
+                        <svg id="arrow-vms" class="w-4 h-4 transition-transform duration-200" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                    </button>
+                    <div id="sub-vms" class="{{ request()->routeIs('vms-*') ? '' : 'hidden' }} pl-6 space-y-1">
+                        <a href="{{ route('vms-lista') }}"
+                            class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('vms-lista') ? $active : $inactive }}">
+                            Ver servidores
+                        </a>
+                        <a href="{{ route('vms-formulario') }}"
+                            class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('vms-formulario') ? $active : $inactive }}">
+                            Agregar servidor
                         </a>
                     </div>
                 </div>

@@ -9,6 +9,8 @@ class Dominio extends Model
     protected $fillable = [
         'user_id',
         'zona_id',
+        'repositorio_id',
+        'vm_id',
         'nombre',
         'subdominio',
         'dominio',
@@ -23,10 +25,12 @@ class Dominio extends Model
         'bd_name',
         'premium',
         'vencimiento',
-        'api_key'
+        'api_key',
+        'desplegado',
     ];
 
     protected $casts = [
+        'desplegado' => 'boolean',
         'principal' => 'boolean',
         'premium' => 'boolean',
         'vencimiento' => 'date',
@@ -41,5 +45,15 @@ class Dominio extends Model
     {
         // Relacionamos zone_id de Dominios con zone_id de Zones
         return $this->belongsTo(Zone::class, 'zone_id', 'zone_id');
+    }
+
+    public function vm()
+    {
+        return $this->belongsTo(VM::class);
+    }
+
+    public function repositorio()
+    {
+        return $this->belongsTo(Repositorio::class);
     }
 }

@@ -30,9 +30,13 @@ return new class extends Migration
             $table->string('db_name')->nullable();
             $table->string('db_user')->nullable();
             $table->string('db_pass')->nullable();
+            $table->boolean('desplegado')->default(0);
             $table->date('vencimiento');
+            // En la migración de dominios
+            $table->foreignId('repositorio_id')->nullable()->constrained('repositorios');
             $table->foreign('user_id')->on('users')->references('id');
             $table->foreign('zone_id')->on('zones')->references('id');
+            $table->foreignId('vm_id')->nullable()->constrained('vms')->onDelete('set null');
             $table->timestamps();
         });
     }
