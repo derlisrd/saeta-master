@@ -131,7 +131,7 @@
                 <h2 class="text-white font-bold text-lg border-b border-zinc-800 pb-2">Paso 2: Base de Datos y Seguridad
                 </h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="md:col-span-2 mt-4">
                         <label
                             class="text-zinc-400 text-xs font-bold uppercase tracking-wider mb-2 flex justify-between items-center">
