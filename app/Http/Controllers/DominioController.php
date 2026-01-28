@@ -47,9 +47,9 @@ class DominioController extends Controller
 
         $request->merge([
             'ip' => $vm->ip,
-            'bd_user' => $dbUser,
-            'bd_name' => $dbName,
-            'bd_pass' => $dbPass
+            'db_user' => $dbUser,
+            'db_name' => $dbName,
+            'db_pass' => $dbPass
         ]);
         // 2. Inyectamos la IP de la VM en el request para que pase la validación
         $request->merge(['ip' => $vm->ip]);
