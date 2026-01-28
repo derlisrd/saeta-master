@@ -96,26 +96,33 @@
                             <td class="px-6 py-4 text-sm font-mono text-sky-300/80">
                                 {{ $dominio->ip }}
                             </td>
-                            <td class="px-6 py-4 text-right space-x-2">
-                                <button class="text-zinc-400 hover:text-white transition-colors" title="Editar">
-                                    <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                    </svg>
-                                </button>
-                                <form action="{{ route('dominios-destroy', $dominio->id) }}" method="POST"
-                                    onsubmit="return confirm('¿Estás seguro de eliminar este dominio? Esto no borrará los archivos en el servidor ni el DNS en Cloudflare automáticamente.');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
-                                        class="p-2 bg-zinc-800 hover:bg-red-900/40 text-zinc-500 hover:text-red-500 rounded-lg border border-zinc-700 transition-all"
-                                        title="Eliminar Dominio">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-end gap-3">
+                                    {{-- Botón Editar --}}
+                                    <button
+                                        class="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-all"
+                                        title="Editar">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                         </svg>
                                     </button>
-                                </form>
+
+                                    {{-- Botón Eliminar con SweetAlert personalizado --}}
+                                    <form action="{{ route('dominios-destroy', $dominio->id) }}" method="POST"
+                                        class="delete-form">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="button" onclick="confirmDelete(this)"
+                                            class="p-2 bg-zinc-800/50 hover:bg-red-950/30 text-zinc-500 hover:text-red-500 rounded-lg border border-zinc-700/50 hover:border-red-500/50 transition-all"
+                                            title="Eliminar Dominio">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -129,4 +136,38 @@
             </table>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function confirmDelete(button) {
+            const form = button.closest('.delete-form');
+
+            Swal.fire({
+                title: '¿Eliminar dominio?',
+                text: "Esta acción borrará el registro de la base de datos local. Los archivos en el servidor y DNS en Cloudflare permanecerán intactos.",
+                icon: 'warning',
+                showCancelButton: true,
+                background: '#18181b', // zinc-900
+                color: '#ffffff',
+                confirmButtonColor: '#ef4444', // red-500
+                cancelButtonColor: '#3f3f46', // zinc-700
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                customClass: {
+                    popup: 'rounded-2xl border border-zinc-700 shadow-2xl',
+                    title: 'text-xl font-bold',
+                    htmlContainer: 'text-zinc-400 text-sm'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Mostrar un loader en el botón para feedback visual
+                    button.innerHTML =
+                        '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+                    button.disabled = true;
+                    form.submit();
+                }
+            })
+        }
+    </script>
 @endsection
