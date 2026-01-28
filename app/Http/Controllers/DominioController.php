@@ -71,6 +71,17 @@ class DominioController extends Controller
         // 4. Guardar en Base de Datos Local
         $dominio = Dominio::create($data);
 
+        if ($request->has('custom_envs')) {
+            foreach ($request->custom_envs as $env) {
+                if (!empty($env['key'])) {
+                    $dominio->envs()->create([
+                        'key' => strtoupper($env['key']),
+                        'value' => $env['value'] ?? '',
+                    ]);
+                }
+            }
+        }
+
         // 5. Sincronización con Cloudflare
         $apiToken = config('services.cloudflare.api_token');
         $cfUrl = "https://api.cloudflare.com/client/v4/zones/{$zonaDB->zone_id}/dns_records";

@@ -58,4 +58,9 @@ class Dominio extends Model
     {
         return $this->belongsTo(Repositorio::class);
     }
+
+    public function envs()
+    {
+        return $this->hasMany(DominioEnv::class);
+    }
 }

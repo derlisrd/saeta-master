@@ -26,7 +26,7 @@ class DesplegarProyectoJob implements ShouldQueue
 
     public function handle()
     {
-        $this->dominio->load(['repositorio', 'vm', 'user']);
+        $this->dominio->load(['repositorio', 'vm', 'user', 'envs']);
 
         $vm = $this->dominio->vm;
         $repo = $this->dominio->repositorio;
@@ -40,7 +40,7 @@ class DesplegarProyectoJob implements ShouldQueue
         $vm = $this->dominio->vm;
         $repo = $this->dominio->repositorio;
         $fullDomain = "{$this->dominio->subdominio}.{$this->dominio->dominio}";
-        $path = "/var/www/html/{$fullDomain}/". $this->dominio->path;
+        $path = "/var/www/html/{$fullDomain}/" . $this->dominio->path;
 
         $dbName = $this->dominio->db_name;
         $dbUser = $this->dominio->db_user;
@@ -49,8 +49,6 @@ class DesplegarProyectoJob implements ShouldQueue
         $apiKey = $this->dominio->api_key;
         $dbConnection = $this->dominio->db_connection;
 
-        $emailUser = $this->dominio->user->email;
-        $passworUser = $this->dominio->user->password;
 
         try {
             $ssh = new SSH2($vm->ip, $vm->puerto);
@@ -94,6 +92,13 @@ USER_SEED=\"{$owner->email}\"
 EMAIL_SEED=\"{$owner->email}\"
 PASSWORD_SEED=\"{$owner->password}\"
 ";
+
+            if ($this->dominio->envs->count() > 0) {
+                $envContent .= "\n# Custom Variables\n";
+                foreach ($this->dominio->envs as $customEnv) {
+                    $envContent .= "{$customEnv->key}=\"{$customEnv->value}\"\n";
+                }
+            }
 
             $commands = [
                 // 1. Preparar Directorio
