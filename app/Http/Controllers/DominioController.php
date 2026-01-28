@@ -85,8 +85,7 @@ class DominioController extends Controller
         // 5. Sincronización con Cloudflare
         $apiToken = config('services.cloudflare.api_token');
         $cfUrl = "https://api.cloudflare.com/client/v4/zones/{$zonaDB->zone_id}/dns_records";
-        Log::info('url '.$cfUrl);
-        /* $response = Http::withHeaders([
+        $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $apiToken,
             'Content-Type'  => 'application/json',
         ])->post($cfUrl, [
@@ -96,20 +95,19 @@ class DominioController extends Controller
             'ttl'     => 3600,
             'proxied' => false, // Nube naranja activada
             'comment' => 'Dominio creado desde el Panel Maestro'
-        ]); */
+        ]); 
 
-        /* if ($response->successful()) {
+        if ($response->successful()) {
             // 6. LANZAR EL JOB DE DESPLIEGUE SSH
             // Pasamos el objeto $dominio que ya tiene las credenciales de DB y API Key
             DesplegarProyectoJob::dispatch($dominio);
 
             return redirect()->route('dominios-lista')
                 ->with('success', "Dominio registrado. El despliegue de la infraestructura ha comenzado.");
-        } */
+        } 
 
         // Si falla Cloudflare, registramos el error pero el dominio ya quedó en nuestra DB
         //Log::error('Error Cloudflare API', ['res' => $response->json()]);
-        DesplegarProyectoJob::dispatch($dominio);
         return redirect()->route('dominios-lista')
             ->with('warning', "Dominio guardado localmente, pero falló la sincronización DNS.");
     }
