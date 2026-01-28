@@ -279,7 +279,7 @@
 
             document.getElementById('db_name').value = `${baseName}_db`;
             // Generar Usuario
-            document.getElementById('db_user').value = `${cleanSub}_${cleanRepo}_user`;
+            document.getElementById('db_user').value = `${cleanRepo}_${cleanSub}__user`;
 
             // Generar Password si está vacía
             if (!document.getElementById('db_pass').value) {
