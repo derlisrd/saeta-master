@@ -164,7 +164,7 @@ PASSWORD_SEED=\"{$owner->password}\"
                 "cd {$path} && composer install --no-dev --optimize-autoloader",
                 "cd {$path} && php artisan key:generate",
                 "cd {$path} && php artisan jwt:secret --force",
-                "cd {$path} && php artisan migrate --seed",
+                "cd {$path} && php artisan migrate --seed --force",
 
                 // 5. Configurar NGINX
                 "echo '{$nginxConfig}' | sudo tee /etc/nginx/sites-available/{$fullDomain}",
