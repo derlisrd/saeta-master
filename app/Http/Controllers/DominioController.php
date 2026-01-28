@@ -92,8 +92,10 @@ class DominioController extends Controller
             'ttl'     => 3600,
             'proxied' => false, // Nube naranja activada
             'comment' => 'Dominio creado desde el Panel Maestro'
-        ]); 
+        ]);
 
+        
+        /** @var \Illuminate\Http\Client\Response $response */
         if ($response->successful()) {
             // 6. LANZAR EL JOB DE DESPLIEGUE SSH
             // Pasamos el objeto $dominio que ya tiene las credenciales de DB y API Key

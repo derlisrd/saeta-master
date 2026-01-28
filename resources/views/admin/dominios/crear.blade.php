@@ -128,19 +128,23 @@
 
             {{-- PASO 2: DATABASE Y API --}}
             <div id="step-2" class="hidden space-y-6">
-                <h2 class="text-white font-bold text-lg border-b border-zinc-800 pb-2">Paso 2: Base de Datos y Seguridad</h2>
+                <h2 class="text-white font-bold text-lg border-b border-zinc-800 pb-2">Paso 2: Base de Datos y Seguridad
+                </h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="md:col-span-2 mt-4">
-    <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider mb-2 flex justify-between items-center">
-        Variables de Entorno Personalizadas
-        <button type="button" onclick="addEnvRow()" class="text-sky-500 hover:text-sky-400 text-[10px] border border-sky-500/30 px-2 py-1 rounded-lg transition-all">+ Agregar Variable</button>
-    </label>
-    
-    <div id="env-container" class="space-y-3">
-        {{-- Aquí se insertarán las filas --}}
-    </div>
-</div>
+                        <label
+                            class="text-zinc-400 text-xs font-bold uppercase tracking-wider mb-2 flex justify-between items-center">
+                            Variables de Entorno Personalizadas
+                            <button type="button" onclick="addEnvRow()"
+                                class="text-sky-500 hover:text-sky-400 text-[10px] border border-sky-500/30 px-2 py-1 rounded-lg transition-all">+
+                                Agregar Variable</button>
+                        </label>
+
+                        <div id="env-container" class="space-y-3">
+                            {{-- Aquí se insertarán las filas --}}
+                        </div>
+                    </div>
                     {{-- Connection & Port --}}
                     <div class="flex flex-col gap-2">
                         <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Motor DB</label>
@@ -150,6 +154,11 @@
                             <option value="mysql">MySQL</option>
                             <option value="sqlite">SQLite</option>
                         </select>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Host DB</label>
+                        <input name="db_host" id="db_host" value="127.0.0.1"
+                            class="bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none focus:border-sky-500" />
                     </div>
                     <div class="flex flex-col gap-2">
                         <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Puerto</label>
@@ -292,13 +301,16 @@
             document.execCommand("copy");
             alert("Copiado: " + input.value);
         }
-    </script>
-
-    <script>
-    function addEnvRow() {
-        const container = document.getElementById('env-container');
-        const index = container.children.length;
-        const html = `
+document.querySelector('select[name="db_connection"]').addEventListener('change', function() {
+    const portInput = document.getElementById('db_port');
+    if (this.value === 'pgsql') portInput.value = '5432';
+    if (this.value === 'mysql') portInput.value = '3306';
+    if (this.value === 'sqlite') portInput.value = ''; 
+});
+        function addEnvRow() {
+            const container = document.getElementById('env-container');
+            const index = container.children.length;
+            const html = `
             <div class="flex gap-2 animate-fadeIn" id="env-row-${index}">
                 <input name="custom_envs[${index}][key]" placeholder="KEY (Ej: MAIL_HOST)" class="w-1/3 bg-zinc-800 border border-zinc-700 rounded-xl p-2 text-white text-sm outline-none focus:border-sky-500" />
                 <input name="custom_envs[${index}][value]" placeholder="VALUE" class="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl p-2 text-white text-sm outline-none focus:border-sky-500" />
@@ -307,7 +319,7 @@
                 </button>
             </div>
         `;
-        container.insertAdjacentHTML('beforeend', html);
-    }
-</script>
+            container.insertAdjacentHTML('beforeend', html);
+        }
+    </script>
 @endsection

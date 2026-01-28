@@ -46,8 +46,8 @@ class ZonesController extends Controller
             'authorization' => 'Bearer ' . $apiToken,
             'accept' => 'application/json'
         ])->get($url);
-        $response->json();
-
+        
+        /** @var \Illuminate\Http\Client\Response $response */
         if ($response->successful()) {
             $data = $response->json();
             $zonas = $data['result'] ?? [];

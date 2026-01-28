@@ -22,6 +22,7 @@ class Dominio extends Model
         'db_connection',
         'db_pass',
         'db_prefix',
+        'db_host',
         'db_user',
         'db_name',
         'db_port',

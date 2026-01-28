@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('db_prefix')->nullable();
             $table->string('db_connection')->nullable();
             $table->string('db_name')->nullable();
+            $table->string('db_host')->default('127.0.0.1');
             $table->string('db_port')->nullable();
             $table->string('db_user')->nullable();
             $table->string('db_pass')->nullable();
