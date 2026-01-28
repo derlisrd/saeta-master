@@ -64,4 +64,8 @@ class Dominio extends Model
     {
         return $this->hasMany(DominioEnv::class);
     }
+
+    public function db_vms(){
+        return $this->belongsTo(DbVms::class,'dominio_id','id');
+    }
 }

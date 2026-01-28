@@ -14,7 +14,7 @@ class DominioController extends Controller
 {
 
     public function find($id){
-        $dominio = Dominio::with(['user', 'vm', 'repositorio', 'envs', 'dbVm'])->findOrFail($id);
+        $dominio = Dominio::with(['user', 'vm', 'repositorio', 'envs', 'db_vms'])->findOrFail($id);
         return view('admin.dominios.detalle', compact('dominio'));
     }
 

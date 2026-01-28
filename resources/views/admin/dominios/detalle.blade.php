@@ -18,7 +18,7 @@
             <span class="px-4 py-2 {{ $dominio->desplegado ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400' }} rounded-xl border border-current text-xs font-bold uppercase tracking-widest">
                 {{ $dominio->desplegado ? '● Activo' : '○ Pendiente' }}
             </span>
-            <form action="{{ route('dominios-redesplegar', $dominio->id) }}" method="POST">
+            <form action="{{ route('dominios-reintentar', $dominio->id) }}" method="POST">
                 @csrf
                 <button class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-xs font-bold transition-all border border-zinc-700">
                     🔄 Re-desplegar
@@ -117,6 +117,23 @@
                 </div>
             </div>
 
+            {{-- Tarjeta API Key --}}
+<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 relative">
+    <h3 class="text-zinc-400 text-xs font-bold uppercase tracking-widest mb-4">Master API Key</h3>
+    <div class="flex flex-col gap-3">
+        <div class="relative group">
+            <input type="password" readonly value="{{ $dominio->api_key }}" 
+                id="api-key"
+                class="w-full bg-black/30 border border-zinc-800 text-emerald-400 text-xs font-mono rounded-xl p-3 pr-10 outline-none focus:border-emerald-500/50 transition-all">
+            <button onclick="copyToClipboard('api-key')" 
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+            </button>
+        </div>
+        <p class="text-[10px] text-zinc-600 italic">Usa esta clave para autenticar peticiones externas a la API v1.</p>
+    </div>
+</div>
+
         </div>
     </div>
 </div>
@@ -129,6 +146,47 @@
         document.execCommand("copy");
         copyText.type = 'password';
         alert("Copiado al portapapeles");
+    }
+</script>
+
+<script>
+    function copyToClipboard(id) {
+        const input = document.getElementById(id);
+        
+        // Guardar el tipo original
+        const originalType = input.type;
+        
+        // Cambiar a texto para poder seleccionar
+        input.type = 'text';
+        input.select();
+        input.setSelectionRange(0, 99999); // Para móviles
+
+        try {
+            document.execCommand('copy');
+            
+            // Feedback visual en el botón o alert
+            const Toast = Swal.mixin({ // Si usas SweetAlert2
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                background: '#18181b',
+                color: '#fff'
+            });
+
+            if (typeof Swal !== 'undefined') {
+                Toast.fire({ icon: 'success', title: 'Copiado al portapapeles' });
+            } else {
+                alert("Copiado: " + input.value);
+            }
+        } catch (err) {
+            console.error('Error al copiar', err);
+        }
+
+        // Restaurar tipo original
+        input.type = originalType;
+        window.getSelection().removeAllRanges();
     }
 </script>
 @endsection
