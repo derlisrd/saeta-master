@@ -41,6 +41,49 @@ class DesplegarProyectoJob implements ShouldQueue
         $repo = $this->dominio->repositorio;
         $fullDomain = "{$this->dominio->subdominio}.{$this->dominio->dominio}";
         $path = "/var/www/html/{$fullDomain}/" . $this->dominio->path;
+        $basePath = "/var/www/html/{$fullDomain}";
+
+        $nginxConfig = "
+server {
+    listen 80;
+    server_name {$fullDomain};
+    root {$basePath};
+
+    # Configuración para /admin - React
+    location /admin {
+        alias {$basePath}/admin/dist/;
+        index index.html;
+        try_files \$uri \$uri/ /admin/index.html;
+    }
+
+    # Estáticos de React
+    location ~ ^/admin/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|json|woff|woff2|ttf|eot))$ {
+        alias {$basePath}/admin/dist/\$1;
+    }
+
+    # Configuración para /v1 - Laravel API
+    location /v1 {
+        try_files \$uri \$uri/ /v1/index.php?\$query_string;
+    }
+
+    location ~ ^/v1/index\\.php(/|$) {
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME {$basePath}/public/index.php;
+        include fastcgi_params;
+    }
+
+    location / {
+        try_files \$uri \$uri/ /index.php?\$query_string;
+    }
+
+    location ~ \\.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}";
 
         $dbName = $this->dominio->db_name;
         $dbUser = $this->dominio->db_user;
@@ -123,6 +166,15 @@ PASSWORD_SEED=\"{$owner->password}\"
                 "cd {$path} && php artisan jwt:secret --force",
                 "cd {$path} && php artisan migrate --seed",
 
+                // 5. Configurar NGINX
+                "echo '{$nginxConfig}' | sudo tee /etc/nginx/sites-available/{$fullDomain}",
+                "sudo ln -sf /etc/nginx/sites-available/{$fullDomain} /etc/nginx/sites-enabled/",
+
+                // 6. SSL con Certbot (Solo si no usas Cloudflare Proxy en modo Flexible)
+                "sudo certbot --nginx -d {$fullDomain} --non-interactive --agree-tos -m {$owner->email}",
+
+                "sudo nginx -t && sudo systemctl reload nginx",
+
                 // 6. Permisos Finales
                 "sudo chown -R www-data:www-data {$path}",
                 "sudo chmod -R 755 {$path}",
@@ -131,7 +183,7 @@ PASSWORD_SEED=\"{$owner->password}\"
 
             foreach ($commands as $cmd) {
                 Log::info("Ejecutando en {$vm->nombre}: {$cmd}");
-                //$ssh->exec($cmd);
+                $ssh->exec($cmd);
             }
 
             // MARCAR COMO DESPLEGADO
