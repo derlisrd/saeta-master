@@ -21,6 +21,8 @@ Route::group(['middleware' => ['auth:web']], function () {
         Route::get('/dominios',[DominioController::class,'lista'])->name('dominios-lista');
         Route::get('/dominios/crear',[DominioController::class,'formulario'])->name('dominios-formulario');
         Route::post('/dominios/crear',[DominioController::class, 'store'])->name('dominios-store');
+
+        Route::get('/dominios/{id}', [DominioController::class, 'find'])->name('dominios-detalle');
         Route::delete('/dominios/{id}', [DominioController::class, 'destroy'])->name('dominios-destroy');
         Route::post('/dominios/{id}/reintentar', [DominioController::class, 'reintentarDespliegue'])->name('dominios-reintentar');
 

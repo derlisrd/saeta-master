@@ -52,7 +52,7 @@
                         <tr class="hover:bg-zinc-800/30 transition-colors group">
                             <td class="px-6 py-4">
                                 <div class="text-sm font-medium text-white group-hover:text-sky-400 transition-colors">
-                                    {{ $dominio->nombre }}
+                                   <a href="{{route('dominios-detalle',$dominio->id)}}"> {{ $dominio->nombre }}</a>
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-sm text-zinc-300">

@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Http;
 class DominioController extends Controller
 {
 
+    public function find($id){
+        $dominio = Dominio::with(['user', 'vm', 'repositorio', 'envs', 'dbVm'])->findOrFail($id);
+        return view('admin.dominios.detalle', compact('dominio'));
+    }
+
     public function formulario(){
 
         return view('admin.dominios.crear', [
