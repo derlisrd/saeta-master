@@ -275,7 +275,7 @@
             const cleanSub = sub.toLowerCase().replace(/[^a-z0-9]/g, '');
             const cleanRepo = repoName.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-            const baseName = `${cleanSub}_${cleanRepo}`;
+            const baseName = `${cleanRepo}_${cleanSub}`;
 
             document.getElementById('db_name').value = `${baseName}_db`;
             // Generar Usuario
