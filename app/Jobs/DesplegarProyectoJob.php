@@ -49,8 +49,13 @@ class DesplegarProyectoJob implements ShouldQueue
             );
 
             foreach ($commands as $cmd) {
-                Log::info("[$this->fullDomain] Ejecutando: $cmd");
-                $ssh->exec($cmd);
+                $output = $ssh->exec($cmd);
+                $exitCode = $ssh->getExitStatus();
+
+                if ($exitCode !== 0) {
+                    Log::error("Command failed: $cmd", ['output' => $output, 'code' => $exitCode]);
+                    throw new \Exception("Fallo comando: $cmd");
+                }
             }
 
             $this->finalizeDeployment();
@@ -64,6 +69,10 @@ class DesplegarProyectoJob implements ShouldQueue
 
     private function prepareDirectoryCommands(): array
     {
+        if (empty($this->path) || $this->path === '/') {
+            throw new \Exception("Path inválido para eliminar");
+        }
+
         return [
             "sudo rm -rf {$this->path}",
             "sudo mkdir -p {$this->path}",
@@ -74,8 +83,10 @@ class DesplegarProyectoJob implements ShouldQueue
     private function databaseCommands(): array
     {
         $d = $this->dominio;
+        $pass = str_replace("'", "''", $d->db_pass);
+
         return [
-            "sudo -u postgres psql -c \"CREATE USER {$d->db_user} WITH PASSWORD '{$d->db_pass}';\" || true",
+            "sudo -u postgres psql -c \"CREATE USER {$d->db_user} WITH PASSWORD '{$pass}';\" || true",
             "sudo -u postgres psql -c \"CREATE DATABASE {$d->db_name} OWNER {$d->db_user};\" || true",
             "sudo -u postgres psql -c \"GRANT ALL PRIVILEGES ON DATABASE {$d->db_name} TO {$d->db_user};\"",
         ];
@@ -84,9 +95,10 @@ class DesplegarProyectoJob implements ShouldQueue
     private function deploymentCommands(): array
     {
         $repo = $this->dominio->repositorio;
+        $envEncoded = base64_encode($this->getEnvContent());
         return [
             "git clone -b {$repo->branch} {$repo->url_git} {$this->path}",
-            "echo '{$this->getEnvContent()}' > {$this->path}/.env",
+            "echo '{$envEncoded}' | base64 -d > {$this->path}/.env",
             "cd {$this->path} && composer install --no-dev --optimize-autoloader",
             "cd {$this->path} && php artisan key:generate && php artisan jwt:secret --force",
             "cd {$this->path} && php artisan migrate --seed --force",
@@ -106,7 +118,7 @@ class DesplegarProyectoJob implements ShouldQueue
             "sudo nginx -t && sudo systemctl reload nginx", // Validar antes de Certbot
             "sudo certbot --nginx -d {$this->fullDomain} --non-interactive --agree-tos -m {$this->dominio->user->email} || true",
             "sudo systemctl reload nginx",
-            "sudo chown -R www-data:www-data {$this->path}",
+            "sudo chown -R " .$this->dominio->vm->usuario.":www-data {$this->path}",
             "sudo chmod -R 775 {$this->path}/storage {$this->path}/bootstrap/cache",
         ];
     }
@@ -140,63 +152,49 @@ class DesplegarProyectoJob implements ShouldQueue
     }
 
     private function getNginxConfig(): string{
-    return <<<NGINX
+    return '
 server {
     listen 80;
-    server_name {$this->fullDomain} ;
-    root {$this->basePath};
+    server_name '.$this->fullDomain.';
+    root '.$this->basePath.';
     #index index.html index.php;
-
-
-        # Configuración para /admin - Aplicación React
+    
     location /admin {
-       alias FULLPATH/admin/dist/;
+       alias '.$this->basePath. '/admin/dist/;
         index index.html;
-        try_files \$uri \$uri/ /admin/index.html; # Importante: la raíz ahora es /admin/dist/
+        try_files \$uri \$uri/ /admin/index.html;
+        
+        location ~ \.php$ {
+            return 403;
+        }
     }
 
-    # Servir los archivos estáticos de React directamente (sin caché, opcional)
     location ~ ^/admin/(.*\.(js|css|png|jpg|jpeg|gif|svg|ico|json|woff|woff2|ttf|eot))$ {
-        alias {$this->basePath}/admin/dist/\$1;
-        # add_header Cache-Control "no-cache, no-store, must-revalidate";
-        # add_header Pragma "no-cache";
-        # add_header Expires "0";
+        alias '. $this->basePath . '/admin/dist/\$1;
     }
-
-
-
-
-    # Configuración para /v1
+    
     location /v1 {
-        # Todas las solicitudes a /v1 se procesan a través del index.php de Laravel
         try_files \$uri \$uri/ /v1/index.php?\$query_string;
     }
 
-    # Procesar index.php para las rutas /v1
     location ~ ^/v1/index\.php(/|$) {
         fastcgi_pass unix:/run/php/php8.2-fpm.sock;
         fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME FULLPATH /public/index.php;
+        fastcgi_param SCRIPT_FILENAME '.$this->basePath.'/public/index.php;
         include fastcgi_params;
     }
 
-    # Configuración por defecto para la raíz
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
     }
-
-    # Para archivos PHP fuera de /v1
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
         fastcgi_pass unix:/run/php/php8.2-fpm.sock;
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include fastcgi_params;
     }
+}';
 
-
-}
-
-NGINX;
 }
     /** * HELPERS 
      */
@@ -207,7 +205,7 @@ NGINX;
         $ssh = new SSH2($vm->ip, $vm->puerto);
         $key = PublicKeyLoader::load($vm->ssh_key);
         if (!$ssh->login($vm->usuario, $key)) throw new \Exception("SSH Login Failed");
-        $ssh->setTimeout(300);
+        $ssh->setTimeout(600);
         return $ssh;
     }
 
