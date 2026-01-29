@@ -139,48 +139,65 @@ class DesplegarProyectoJob implements ShouldQueue
         return $env;
     }
 
-    private function getNginxConfig(): string
-    {
-        return <<<NGINX
+    private function getNginxConfig(): string{
+    return <<<NGINX
 server {
     listen 80;
-    server_name {$this->fullDomain};
+    server_name {$this->fullDomain} ;
     root {$this->basePath};
+    #index index.html index.php;
 
+
+        # Configuración para /admin - Aplicación React
     location /admin {
-        alias {$this->basePath}/admin/dist/;
+       alias FULLPATH/admin/dist/;
         index index.html;
-        try_files \$uri \$uri/ /admin/index.html;
+        try_files \$uri \$uri/ /admin/index.html; # Importante: la raíz ahora es /admin/dist/
     }
 
+    # Servir los archivos estáticos de React directamente (sin caché, opcional)
     location ~ ^/admin/(.*\.(js|css|png|jpg|jpeg|gif|svg|ico|json|woff|woff2|ttf|eot))$ {
         alias {$this->basePath}/admin/dist/\$1;
+        # add_header Cache-Control "no-cache, no-store, must-revalidate";
+        # add_header Pragma "no-cache";
+        # add_header Expires "0";
     }
 
+
+
+
+    # Configuración para /v1
     location /v1 {
+        # Todas las solicitudes a /v1 se procesan a través del index.php de Laravel
         try_files \$uri \$uri/ /v1/index.php?\$query_string;
     }
 
+    # Procesar index.php para las rutas /v1
     location ~ ^/v1/index\.php(/|$) {
         fastcgi_pass unix:/run/php/php8.2-fpm.sock;
         fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME {$this->path}/public/index.php;
+        fastcgi_param SCRIPT_FILENAME FULLPATH /public/index.php;
         include fastcgi_params;
     }
 
+    # Configuración por defecto para la raíz
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
     }
 
+    # Para archivos PHP fuera de /v1
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
         fastcgi_pass unix:/run/php/php8.2-fpm.sock;
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include fastcgi_params;
     }
+
+
 }
+
 NGINX;
-    }
+}
     /** * HELPERS 
      */
 
