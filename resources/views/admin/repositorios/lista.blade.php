@@ -20,7 +20,7 @@
     </a>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     @foreach($repositorios as $repo)
     <div class="bg-zinc-900/50 border border-zinc-700 p-5 rounded-2xl relative group">
         <div class="flex items-start justify-between">

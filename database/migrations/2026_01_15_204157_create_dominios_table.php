@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('type')->default('A')->nullable();
             $table->boolean('principal')->default(0);
             $table->boolean('premium')->default(0);
+            $table->string('stack')->default('backend');
             $table->string('db_prefix')->nullable();
             $table->string('db_connection')->nullable();
             $table->string('db_name')->nullable();

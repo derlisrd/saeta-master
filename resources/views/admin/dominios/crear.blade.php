@@ -3,7 +3,7 @@
 @section('page-title', 'Crear un Nuevo Dominio')
 
 @section('content')
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-5xl mx-auto">
         {{-- Indicador de Pasos --}}
         <div class="flex items-center justify-center mb-8 gap-4">
             <div id="step-1-indicator" class="h-2 w-24 rounded-full bg-sky-600 transition-all duration-300"></div>
@@ -33,11 +33,13 @@
 
             {{-- PASO 1: INFRAESTRUCTURA Y DOMINIO --}}
             <div id="step-1" class="space-y-6">
-                <h2 class="text-white font-bold text-lg border-b border-zinc-800 pb-2">Paso 1: Dominio e Infraestructura</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <h2 class="text-white font-bold text-lg border-b border-zinc-800 pb-2">Paso 1: Dominio e Infraestructura
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" >
                     {{-- Cliente --}}
                     <div class="flex flex-col gap-2 ">
-                        <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Cliente Responsable</label>
+                        <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Cliente
+                            Responsable</label>
                         <select name="user_id" required
                             class="bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-sky-500/50 outline-none">
                             <option value="" disabled selected>Seleccione cliente...</option>
@@ -46,8 +48,39 @@
                             @endforeach
                         </select>
                     </div>
-                    
-                    
+
+                    <div class="flex flex-col gap-3 md:col-span-2">
+                        <label class="text-zinc-500 text-[10px] font-bold uppercase ml-1">Selecciona el tipo de
+                            Stack</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {{-- Opción Backend --}}
+                            <label
+                                class="relative flex flex-col p-4 bg-zinc-800/50 border border-zinc-700 rounded-2xl cursor-pointer hover:bg-zinc-800 transition-all group">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-white font-bold text-sm">Backend / Fullstack</span>
+                                    <input type="radio" name="stack" value="backend" checked
+                                        onchange="toggleStackFields(this.value)"
+                                        class="w-4 h-4 text-sky-500 bg-zinc-900 border-zinc-700 focus:ring-sky-500 focus:ring-offset-zinc-900">
+                                </div>
+                                <p class="text-zinc-500 text-xs italic">Incluye Base de Datos (Postgres/MySQL) y API
+                                    Laravel/Node.</p>
+                            </label>
+
+                            {{-- Opción Frontend --}}
+                            <label
+                                class="relative flex flex-col p-4 bg-zinc-800/50 border border-zinc-700 rounded-2xl cursor-pointer hover:bg-zinc-800 transition-all group">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-white font-bold text-sm">Frontend SPA</span>
+                                    <input type="radio" name="stack" value="frontend"
+                                        onchange="toggleStackFields(this.value)"
+                                        class="w-4 h-4 text-emerald-500 bg-zinc-900 border-zinc-700 focus:ring-emerald-500 focus:ring-offset-zinc-900">
+                                </div>
+                                <p class="text-zinc-500 text-xs italic">Solo archivos estáticos (React, Vue, HTML). Ignora
+                                    Base de Datos.</p>
+                            </label>
+                        </div>
+                    </div>
+
 
                     <div class="flex flex-col gap-2 ">
                         <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Repositorio</label>
@@ -117,9 +150,9 @@
                         </div>
                     </div>
 
-                    
 
-                    
+
+
                 </div>
 
                 <div class="flex justify-end mt-8">
@@ -131,12 +164,12 @@
             </div>
 
             {{-- PASO 2: DATABASE Y API --}}
-            <div id="step-2" class="hidden space-y-6">
+            <div id="step-2" class="hidden space-y-6" >
                 <h2 class="text-white font-bold text-lg border-b border-zinc-800 pb-2">Paso 2: Base de Datos y Seguridad
                 </h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="db-fields-container">
+
                     {{-- Connection & Port --}}
                     <div class="flex flex-col gap-2">
                         <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Motor DB</label>
@@ -150,7 +183,8 @@
 
                     {{-- DB User y Pass (Generados automáticamente) --}}
                     <div class="flex flex-col gap-2 ">
-                        <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Nombre de la Base de Datos</label>
+                        <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Nombre de la Base de
+                            Datos</label>
                         <input name="db_name" id="db_name" readonly
                             class="bg-zinc-800/50 border border-zinc-700 rounded-xl p-3 text-zinc-400 outline-none"
                             value="{{ old('db_name') }}" />
@@ -167,11 +201,12 @@
                             class="bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none" />
                     </div>
 
-                    
+
 
                     {{-- Usuario de la Base de Datos --}}
                     <div class="flex flex-col gap-2 ">
-                        <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Usuario Generado</label>
+                        <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Usuario
+                            Generado</label>
                         <input name="db_user" id="db_user" readonly
                             class="bg-zinc-800/50 border border-zinc-700 rounded-xl p-3 text-zinc-400 outline-none"
                             value="{{ old('db_user') }}" />
@@ -191,6 +226,10 @@
                         </div>
                     </div>
 
+                    
+                </div>
+
+                <div class="grid grid-col-1 md:grid-cols-2 gap-4">
                     {{-- API KEY --}}
                     <div class="flex flex-col gap-2 md:col-span-2">
                         <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">API Key del
@@ -234,9 +273,9 @@
                         ← Volver
                     </button>
                     <button type="button" onclick="confirmFinalSubmit()"
-    class="bg-emerald-600 hover:bg-emerald-500 text-white px-10 py-3 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/20 uppercase tracking-widest text-sm">
-    Finalizar y Desplegar
-</button>
+                        class="bg-emerald-600 hover:bg-emerald-500 text-white px-10 py-3 rounded-xl font-bold transition-all shadow-lg shadow-emerald-500/20 uppercase tracking-widest text-sm">
+                        Finalizar y Desplegar
+                    </button>
                 </div>
             </div>
         </form>
@@ -245,48 +284,76 @@
 
 @section('scripts')
     <script>
-function confirmFinalSubmit() {
-    const envContainer = document.getElementById('env-container');
-    const hasEnvs = envContainer.children.length > 0;
 
-    if (!hasEnvs) {
-        Swal.fire({
-            title: '¿Continuar sin variables?',
-            text: "No has agregado variables de entorno personalizadas. ¿Deseas desplegar el dominio así?",
-            icon: 'question',
-            showCancelButton: true,
-            background: '#18181b',
-            color: '#fff',
-            confirmButtonColor: '#059669', // emerald-600
-            cancelButtonColor: '#3f3f46',  // zinc-700
-            confirmButtonText: 'Sí, desplegar',
-            cancelButtonText: 'Revisar',
-            customClass: {
-                popup: 'rounded-3xl border border-zinc-800 shadow-2xl'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                processAndSubmit();
-            }
+function toggleStackFields(stackValue) {
+    const dbContainer = document.getElementById('db-fields-container');
+    // Buscamos todos los inputs y selects dentro del contenedor de DB
+    const dbInputs = dbContainer.querySelectorAll('input, select');
+
+    if (stackValue === 'frontend') {
+        // Animación de salida y ocultar
+        dbContainer.style.opacity = '0';
+        setTimeout(() => {
+            dbContainer.classList.add('hidden');
+            // Quitamos el atributo required para que el form sea válido
+            dbInputs.forEach(el => el.required = false);
+        }, 200);
+
+        Toast.fire({
+            icon: 'info',
+            title: 'Modo Frontend Activo',
+            text: 'Se han deshabilitado los campos de base de datos.'
         });
     } else {
-        processAndSubmit();
+        // Mostrar y volver a poner required
+        dbContainer.classList.remove('hidden');
+        setTimeout(() => dbContainer.style.opacity = '1', 10);
+        dbInputs.forEach(el => el.required = true);
     }
 }
 
-function processAndSubmit() {
-    // Mostramos un toast de carga
-    Toast.fire({
-        icon: 'info',
-        title: 'Procesando despliegue...',
-        text: 'Instalando configuración en el servidor',
-        timer: 10000, // Tiempo largo mientras carga
-        timerProgressBar: true,
-    });
+        function confirmFinalSubmit() {
+            const envContainer = document.getElementById('env-container');
+            const hasEnvs = envContainer.children.length > 0;
 
-    // Enviamos el formulario
-    document.getElementById('multi-step-form').submit();
-}
+            if (!hasEnvs) {
+                Swal.fire({
+                    title: '¿Continuar sin variables?',
+                    text: "No has agregado variables de entorno personalizadas. ¿Deseas desplegar el dominio así?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    background: '#18181b',
+                    color: '#fff',
+                    confirmButtonColor: '#059669', // emerald-600
+                    cancelButtonColor: '#3f3f46', // zinc-700
+                    confirmButtonText: 'Sí, desplegar',
+                    cancelButtonText: 'Revisar',
+                    customClass: {
+                        popup: 'rounded-3xl border border-zinc-800 shadow-2xl'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        processAndSubmit();
+                    }
+                });
+            } else {
+                processAndSubmit();
+            }
+        }
+
+        function processAndSubmit() {
+            // Mostramos un toast de carga
+            Toast.fire({
+                icon: 'info',
+                title: 'Procesando despliegue...',
+                text: 'Instalando configuración en el servidor',
+                timer: 10000, // Tiempo largo mientras carga
+                timerProgressBar: true,
+            });
+
+            // Enviamos el formulario
+            document.getElementById('multi-step-form').submit();
+        }
 
 
         const Toast = Swal.mixin({
