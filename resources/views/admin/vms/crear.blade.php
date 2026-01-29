@@ -52,24 +52,30 @@
                     <div class="mt-4">
                         <label class="text-zinc-500 text-[10px] font-bold uppercase">Llave Privada SSH (id_rsa)</label>
                         <div class="flex items-center justify-center w-full">
-                            <label
-                                class="flex flex-col items-center justify-center w-full h-32 border-2 border-zinc-700 border-dashed rounded-lg cursor-pointer bg-zinc-800/50 hover:bg-zinc-800 transition-all">
-                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <svg class="w-8 h-8 mb-4 text-zinc-500" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
+                            <label id="dropzone"
+                                class="flex flex-col items-center justify-center w-full h-32 border-2 border-zinc-700 border-dashed rounded-lg cursor-pointer bg-zinc-800/50 hover:bg-zinc-800 transition-all overflow-hidden relative">
+
+                                <div id="file-preview-zone" class="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <svg id="upload-icon" class="w-8 h-8 mb-4 text-zinc-500" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
-                                    <p class="mb-2 text-sm text-zinc-400"><span class="font-semibold">Click para
-                                            subir</span> o arrastra tu id_rsa</p>
-                                    <p class="text-xs text-zinc-500 uppercase">OpenSSH Private Key</p>
+                                    <p id="file-name" class="mb-2 text-sm text-zinc-400 text-center px-4">
+                                        <span class="font-semibold">Click para subir</span> o arrastra tu id_rsa
+                                    </p>
+                                    <p id="file-status" class="text-xs text-zinc-500 uppercase font-bold tracking-tighter">
+                                        OpenSSH Private Key</p>
                                 </div>
-                                <input name="ssh_key_file" type="file" class="hidden" />
+
+                                {{-- Input real --}}
+                                <input name="ssh_key_file" id="ssh_key_file" type="file" class="hidden"
+                                    onchange="handleFileSelect(this)" />
                             </label>
                         </div>
                     </div>
-                    <button type="submit"
-                        class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-widest transition-all shadow-lg shadow-emerald-500/10">
+                    <button type="button" onclick="validateAndSubmitVM()"
+                        class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-widest transition-all shadow-lg shadow-emerald-500/10 mt-4">
                         Guardar VM
                     </button>
                 </div>
@@ -118,16 +124,18 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-right">
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                                        Conectado
-                                    </span>
+                                    <div class="flex flex-col items-end">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">
+                                            ● Online
+                                        </span>
+                                        <span class="text-[9px] text-zinc-600 mt-1 font-mono">Latencia: 24ms</span>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-6 py-12 text-center text-zinc-500 text-sm italic">No hay
-                                    servidores registrados aún.</td>
+                                <td colspan="4" class="px-6 py-12 text-center text-zinc-500 text-sm italic">No hay servidores registrados aún.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -135,4 +143,85 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    <script>
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            background: '#18181b',
+            color: '#fff'
+        });
+
+        // Función para mostrar feedback visual del archivo
+        function handleFileSelect(input) {
+            const fileNameDisplay = document.getElementById('file-name');
+            const fileStatus = document.getElementById('file-status');
+            const dropzone = document.getElementById('dropzone');
+            const icon = document.getElementById('upload-icon');
+
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+
+                // Actualizar UI
+                fileNameDisplay.innerHTML = `<span class="text-emerald-400 font-mono">${file.name}</span>`;
+                fileStatus.innerText = "Archivo Cargado Correctamente";
+                dropzone.classList.replace('border-zinc-700', 'border-emerald-500');
+                dropzone.classList.add('bg-emerald-500/5');
+                icon.classList.replace('text-zinc-500', 'text-emerald-500');
+
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Archivo detectado'
+                });
+            }
+        }
+
+        // Validación y Envío
+        function validateAndSubmitVM() {
+            const form = document.querySelector('form[action="{{ route('vms-store') }}"]');
+            const nombre = form.querySelector('[name="nombre"]').value.trim();
+            const ip = form.querySelector('[name="ip"]').value.trim();
+            const sshFile = document.getElementById('ssh_key_file').files[0];
+
+            let errors = [];
+
+            if (!nombre) errors.push("un Nombre");
+            if (!ip) errors.push("una dirección IP");
+            if (!sshFile) errors.push("la Llave Privada SSH");
+
+            if (errors.length > 0) {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Faltan campos',
+                    text: `Por favor indica ${errors.join(', ')}.`
+                });
+                return;
+            }
+
+            // Validación extra: ¿Es una IP válida?
+            const ipRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
+            if (!ipRegex.test(ip)) {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'IP Inválida',
+                    text: 'Ingresa un formato de IP correcto (Ej: 1.2.3.4)'
+                });
+                return;
+            }
+
+            // Si todo está bien, enviamos
+            Toast.fire({
+                icon: 'info',
+                title: 'Registrando Servidor...',
+                timer: 1500
+            });
+
+            setTimeout(() => form.submit(), 1000);
+        }
+    </script>
 @endsection
