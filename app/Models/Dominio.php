@@ -30,6 +30,7 @@ class Dominio extends Model
         'vencimiento',
         'api_key',
         'desplegado',
+        'protocol'
     ];
 
     protected $casts = [

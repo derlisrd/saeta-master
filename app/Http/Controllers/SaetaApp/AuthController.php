@@ -101,9 +101,10 @@ class AuthController extends Controller
             Cache::forget($userKey);
             Cache::forget($userKey . ':lockout');
 
-            
 
-            $token = auth('api')->attempt($credentials);
+            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $auth */
+            $auth = auth('api');
+            $token = $auth->attempt($credentials);
 
             if ($token) {
                 $refreshToken = JWTAuth::claims([
@@ -149,15 +150,21 @@ class AuthController extends Controller
 
     public function refresh()
     {
-        return $this->respondWithToken(Auth::guard('api')->refresh());
+        /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $guard */
+        $guard = Auth::guard('api');
+
+        return $this->respondWithToken($guard->refresh());
     }
 
     protected function respondWithToken($token)
     {
+        /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $guard */
+        $guard = Auth::guard('api');
+
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => Auth::guard('api')->factory()->getTTL() * 60,
+            'expires_in' => $guard->factory()->getTTL() * 60,
             'user' => Auth::guard('api')->user()
         ]);
     }

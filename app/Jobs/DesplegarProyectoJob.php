@@ -141,11 +141,48 @@ class DesplegarProyectoJob implements ShouldQueue
 
     private function getNginxConfig(): string
     {
-        return view('templates.nginx', [
-            'domain' => $this->fullDomain,
-            'path' => $this->path,
-            'basePath' => $this->basePath
-        ])->render();
+        $nginxConfig = "
+server {
+    listen 80;
+    server_name {$this->fullDomain};
+    root {$this->basePath};
+
+    # Configuración para /admin - React
+    location /admin {
+        alias {$this->basePath}/admin/dist/;
+        index index.html;
+        try_files \$uri \$uri/ /admin/index.html;
+    }
+
+    # Estáticos de React
+    location ~ ^/admin/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|json|woff|woff2|ttf|eot))$ {
+        alias {$this->basePath}/admin/dist/\$1;
+    }
+
+    # Configuración para /v1 - Laravel API
+    location /v1 {
+        try_files \$uri \$uri/ /v1/index.php?\$query_string;
+    }
+
+    location ~ ^/v1/index\\.php(/|$) {
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME {$this->path}/public/index.php;
+        include fastcgi_params;
+    }
+
+    location / {
+        try_files \$uri \$uri/ /index.php?\$query_string;
+    }
+
+    location ~ \\.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}";
+        return $nginxConfig;
     }
 
     /** * HELPERS 
