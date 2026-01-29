@@ -30,6 +30,8 @@ Route::group(['middleware' => ['auth:web']], function () {
         Route::get('/zonas',[ZonesController::class,'lista'])->name('zonas-lista');
         Route::get('/zonas/crear',[ZonesController::class, 'formulario'])->name('zonas-formulario');
         Route::post('/zonas/crear',[ZonesController::class, 'store'])->name('zonas-store');
+        Route::get('/zonas/dns-records/{zonas_id}',[ZonesController::class, 'DnsRecordsRemoto'])->name('zonas-dns-records');
+        Route::delete('/zonas/dns-records/{zone_id}/{record_id}', [ZonesController::class, 'destroyDnsRecord'])->name('zonas-dns-destroy');
 
         Route::get('/repositorios',[RepositorioController::class,'lista'])->name('repositorios-lista');
         Route::get('/repositorios/crear',[RepositorioController::class, 'formulario'])->name('repositorios-formulario');

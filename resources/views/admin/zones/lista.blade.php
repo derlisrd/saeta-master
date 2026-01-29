@@ -40,7 +40,7 @@
                             #{{ $zone->id }}
                         </td>
                         <td class="px-6 py-4">
-                            <span class="bg-zinc-800 text-sky-400 px-3 py-1 rounded-md text-xs font-mono border border-zinc-700">
+                            <a href="{{route('zonas-dns-records',$zone->id)}}" class="bg-zinc-800 text-sky-400 px-3 py-1 rounded-md text-xs font-mono border border-zinc-700">
                                 {{ $zone->zone_id }}
                             </span>
                         </td>

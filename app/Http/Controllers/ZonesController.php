@@ -9,6 +9,73 @@ use Illuminate\Support\Facades\Http;
 class ZonesController extends Controller
 {
 
+
+    public function destroyDnsRecord($zone_id,$record_id)
+    {
+
+
+        $apiToken = config('services.cloudflare.api_token');
+        $url = config('services.cloudflare.api_url') . "/zones/$zone_id/dns_records/$record_id";
+
+        $response = Http::withHeaders([
+            'authorization' => 'Bearer ' . $apiToken,
+            'accept' => 'application/json'
+        ])->delete($url);
+
+        /** @var \Illuminate\Http\Client\Response $response */
+        if ($response->successful()) {
+            return redirect()->back()->with('success', 'Registro DNS eliminado correctamente de Cloudflare.');
+        }
+
+        return redirect()->back()->with('error', 'No se pudo eliminar el registro. Error: ' . $response->json()['errors'][0]['message']);
+    }
+
+    public function DnsRecordsRemoto($id){
+
+        $zona = Zone::find($id);
+
+        if(!$zona){
+            return redirect()->route('zonas-lista');
+        }
+
+        
+        $apiToken = config('services.cloudflare.api_token');
+        $url = config('services.cloudflare.api_url') . "/zones"."/".$zona->zone_id."/dns_records";
+
+        $response = Http::withHeaders([
+            'authorization' => 'Bearer ' . $apiToken,
+            'accept' => 'application/json'
+        ])->get($url);
+
+        /** @var \Illuminate\Http\Client\Response $response */
+        if ($response->successful()) {
+            $data = $response->json();
+            $allRecords = $data['result'] ?? [];
+
+            $records = collect($allRecords)->filter(function ($record) {
+                return $record['type'] === 'A';
+            })->values()->all(); // values() resetea los índices del array
+
+            return view('admin.zones.dns-records', [
+                'dnsRecords' => $records,
+                'totalDnsRecords' => count($records),
+                'zonaId' => $zona->zone_id
+            ]);
+
+            return view('admin.zones.dns-records', [
+                'dnsRecords' => $records,
+                'totalDnsRecords' => count($records),
+                'zonaId'=> $zona->zone_id
+            ]);
+        }
+        return view('admin.zones.dns-records', [
+            'dnsRecords' => [],
+            'totalDnsRecords' => 0,
+            'zone_id'=> ''
+        ]);
+    }
+
+
     public function lista(){
         return view('admin.zones.lista', ['zones' => Zone::all()]);
     }
@@ -62,5 +129,9 @@ class ZonesController extends Controller
                 'totalZonas' => count($zonas)
             ]);
         }
+        return view('admin.zones.crear', [
+            'zonas' => [],
+            'totalZonas' => 0
+        ]);
     }
 }

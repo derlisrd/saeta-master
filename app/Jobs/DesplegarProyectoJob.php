@@ -212,18 +212,15 @@ server {
 
     private function finalizeDeployment()
     {
-        DbVms::create(
-            [
+        DbVms::create([
                 'dominio_id' => $this->dominio->id,
-
                 'host' => $this->dominio->db_host,
                 'port' => $this->dominio->db_port,
                 'db_name' => $this->dominio->db_name,
                 'db_user' => $this->dominio->db_user,
                 'db_pass' => $this->dominio->db_pass,
                 'db_connection' => $this->dominio->db_connection
-            ]
-        );
+            ]);
 
         $this->dominio->update(['desplegado' => 1]);
         Log::info("✅ Proyecto listo: {$this->fullDomain}");

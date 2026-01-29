@@ -17,9 +17,10 @@
     <div class="flex min-h-screen">
 
         <aside id="drawer"
-            class="fixed inset-y-0 left-0 z-50 w-64 h-screen bg-gray-900 border-r border-gray-800 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static">
+            class="fixed inset-y-0 left-0 z-50 w-64 bg-zinc-900 transform -translate-x-full transition-transform duration-300 ease-in-out 
+    lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:flex lg:flex-col overflow-y-auto border-r border-zinc-800">
 
-            <div class="flex items-center justify-between h-16 px-6 bg-gray-950">
+            <div class="flex items-center justify-between h-16 px-6 bg-zinc-900">
                 <span class="text-white font-bold uppercase tracking-wider">Admin</span>
                 <button onclick="toggleDrawer()" class="text-gray-400 hover:text-white lg:hidden">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,7 +197,7 @@
             arrow.classList.toggle('rotate-180');
         }
     </script>
-
+    @yield('scripts')
      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 
