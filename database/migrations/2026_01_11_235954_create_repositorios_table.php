@@ -19,6 +19,10 @@ return new class extends Migration
             $table->string('tipo')->default('laravel'); // En lugar de enum
             //$table->enum('tipo', ['laravel', 'nodejs', 'static', 'wordpress'])->default('laravel');
             $table->text('descripcion')->nullable();
+            $table->text('install_commands')->nullable(); // Ej: composer install, npm install
+            $table->text('build_commands')->nullable();   // Ej: npm run build, vite build
+            $table->text('setup_commands')->nullable();   // Ej: php artisan migrate, php artisan key:generate
+            $table->string('output_path')->default('public'); // Para Frontends: carpeta donde queda el build (dist, build, public)
             $table->timestamps();
         });
     }

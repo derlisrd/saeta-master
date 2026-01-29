@@ -20,7 +20,11 @@ class Repositorio extends Model
         'url_git',     // URL completa del repo (https://...)
         'branch',      // Rama por defecto (main/master)
         'tipo',        // laravel, nodejs, static, wordpress
-        'descripcion'  // Notas adicionales
+        'descripcion',
+        'install_commands',
+        'build_commands',
+        'setup_commands',
+        'output_path', 
     ];
 
     /**
@@ -43,8 +47,4 @@ class Repositorio extends Model
         return $this->hasMany(Dominio::class, 'repositorio_id');
     }
 
-    public function comandos()
-    {
-        return $this->hasMany(Comando::class)->orderBy('orden', 'asc');
-    }
 }

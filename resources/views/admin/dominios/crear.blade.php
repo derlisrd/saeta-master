@@ -60,10 +60,8 @@
                                     <span class="text-white font-bold text-sm">Backend / Fullstack</span>
                                     <input type="radio" name="stack" value="backend" checked
                                         onchange="toggleStackFields(this.value)"
-                                        class="w-4 h-4 text-sky-500 bg-zinc-900 border-zinc-700 focus:ring-sky-500 focus:ring-offset-zinc-900">
+                                        class="w-4 h-4">
                                 </div>
-                                <p class="text-zinc-500 text-xs italic">Incluye Base de Datos (Postgres/MySQL) y API
-                                    Laravel/Node.</p>
                             </label>
 
                             {{-- Opción Frontend --}}
@@ -73,10 +71,8 @@
                                     <span class="text-white font-bold text-sm">Frontend SPA</span>
                                     <input type="radio" name="stack" value="frontend"
                                         onchange="toggleStackFields(this.value)"
-                                        class="w-4 h-4 text-emerald-500 bg-zinc-900 border-zinc-700 focus:ring-emerald-500 focus:ring-offset-zinc-900">
+                                        class="w-4 h-4">
                                 </div>
-                                <p class="text-zinc-500 text-xs italic">Solo archivos estáticos (React, Vue, HTML). Ignora
-                                    Base de Datos.</p>
                             </label>
                         </div>
                     </div>

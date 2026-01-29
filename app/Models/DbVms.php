@@ -9,9 +9,10 @@ class DbVms extends Model
     protected $table = 'db_vms';
     protected $fillable = [
         'dominio_id',
-        'host',
-        'port',
+        'db_host',
         'db_port',
+        'db_port',
+        'db_user',
         'db_name',
         'db_pass',
         'db_connection'

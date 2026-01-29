@@ -17,14 +17,14 @@
             </div>
 
             <div class="space-y-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-                {{-- Buscador y Selector de Repo --}}
+
+                {{-- Selector con Buscador --}}
                 <div>
-                    <label class="text-zinc-500 text-[10px] font-bold uppercase ml-1">Repositorio GitHub</label>
-                    <select name="url_git" id="repo-select" onchange="fetchBranches(this)" required
-                        class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none focus:ring-2 focus:ring-emerald-500/50">
-                        <option value="" disabled selected>Seleccione un repositorio...</option>
+                    <label class="text-zinc-500 text-[10px] font-bold uppercase ml-1 mb-2 block">Repositorio GitHub</label>
+                    <select name="url_git" id="repo-select" placeholder="Escribe para buscar un repositorio..."
+                        autocomplete="off">
+                        <option value="">Buscar repositorio...</option>
                         @foreach ($repositorios as $repo)
-                            {{-- Usamos full_name para la API y clone_url para el registro --}}
                             <option value="{{ $repo['full_name'] }}" data-clone="{{ $repo['clone_url'] }}">
                                 {{ $repo['full_name'] }}
                             </option>
@@ -51,7 +51,6 @@
                 </div>
 
                 <div>
-
                     <label class="text-zinc-500 text-[10px] font-bold uppercase ml-1">Tipo de App</label>
                     <select name="tipo"
                         class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none">
@@ -63,11 +62,53 @@
 
                 </div>
 
-                <button type="submit"
-                    class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-2xl uppercase text-xs tracking-widest transition-all mt-4 shadow-lg shadow-emerald-900/20">
-                    REGISTRAR STACK
-                </button>
+
+
             </div>
+
+            <div class="grid grid-cols-1 gap-6 mt-8 border-t border-zinc-800 pt-8">
+                <h3 class="text-emerald-500 font-bold text-xs uppercase tracking-widest flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Pipeline de Despliegue
+                </h3>
+
+                <div class="space-y-4">
+                    {{-- Fase de Instalación --}}
+                    <div>
+                        <label class="text-zinc-500 text-[10px] font-bold uppercase ml-1">1. Comandos de Instalación
+                            (Dependencias)</label>
+                        <textarea name="install_commands" rows="2" placeholder="composer install --no-dev&#10;npm install"
+                            class="w-full bg-zinc-950 border border-zinc-700 rounded-xl p-3 text-emerald-400 font-mono text-xs focus:ring-1 focus:ring-emerald-500 outline-none"></textarea>
+                    </div>
+
+                    {{-- Fase de Build --}}
+                    <div>
+                        <label class="text-zinc-500 text-[10px] font-bold uppercase ml-1">2. Comandos de Compilación
+                            (Build)</label>
+                        <textarea name="build_commands" rows="2" placeholder="npm run build"
+                            class="w-full bg-zinc-950 border border-zinc-700 rounded-xl p-3 text-amber-400 font-mono text-xs focus:ring-1 focus:ring-amber-500 outline-none"></textarea>
+                    </div>
+
+                    {{-- Fase de Configuración --}}
+                    <div>
+                        <label class="text-zinc-500 text-[10px] font-bold uppercase ml-1">3. Otros (Migraciones, Seeds,
+                            Caché)</label>
+                        <textarea name="setup_commands" rows="2" placeholder="php artisan migrate --force&#10;php artisan optimize"
+                            class="w-full bg-zinc-950 border border-zinc-700 rounded-xl p-3 text-sky-400 font-mono text-xs focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="text-zinc-500 text-[10px] font-bold uppercase ml-1">4. Carpeta de build</label>
+                        <textarea name="output_path" rows="2" placeholder="public... dist... prod..."
+                            class="w-full bg-zinc-950 border border-zinc-700 rounded-xl p-3 text-sky-400 font-mono text-xs focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
+                    </div>
+                </div>
+            </div>
+            <button type="submit"
+                class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-2xl uppercase text-xs tracking-widest transition-all mt-4 shadow-lg shadow-emerald-900/20">
+                REGISTRAR STACK
+            </button>
         </form>
     </div>
 @endsection
@@ -165,4 +206,116 @@
             });
         @endif
     </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        // Inicializar el buscador en el select
+        var repoSelect = new TomSelect("#repo-select", {
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            },
+            onChange: function(value) {
+                // value es el full_name del repo
+                if (!value) return;
+
+                // Obtener el elemento seleccionado para sacar el data-clone
+                const option = this.options[value];
+                const cloneUrl = option.dataClone; // TomSelect mapea data-attributes
+
+                // Llamar a tu función de ramas
+                fetchBranchesFromValue(value, cloneUrl);
+
+                // Autocompletar nombre
+                const stackNombre = document.getElementById('stack-nombre');
+                if (!stackNombre.value) {
+                    stackNombre.value = value.split('/').pop().toUpperCase();
+                }
+            },
+            // Mapeo manual de data attributes para TomSelect
+            render: {
+                option: function(data, escape) {
+                    return `<div>${escape(data.text)}</div>`;
+                }
+            },
+            onInitialize: function() {
+                // Guardamos los clones en un mapa interno para acceder fácil
+                const self = this;
+                document.querySelectorAll('#repo-select option').forEach(opt => {
+                    if (opt.value) {
+                        self.options[opt.value].dataClone = opt.dataset.clone;
+                    }
+                });
+            }
+        });
+
+        async function fetchBranchesFromValue(repoFullname, cloneUrl) {
+            const branchSelect = document.getElementById('branch-select');
+            const cloneUrlInput = document.getElementById('clone-url-input');
+
+            cloneUrlInput.value = cloneUrl;
+            branchSelect.innerHTML = '<option value="">Cargando ramas...</option>';
+
+            try {
+                const params = new URLSearchParams({
+                    repo: repoFullname
+                });
+                const response = await fetch("{{ route('github-branches') }}?" + params);
+                const branches = await response.json();
+
+                if (response.ok) {
+                    branchSelect.innerHTML = '';
+                    branches.forEach(branch => {
+                        const option = document.createElement('option');
+                        option.value = branch.name;
+                        option.textContent = branch.name;
+                        if (branch.name === 'main' || branch.name === 'master') option.selected = true;
+                        branchSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    </script>
+@endsection
+
+@section('styles')
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <style>
+        /* Personalización para que coincida con tu diseño Zinc */
+        .ts-control {
+            background-color: #27272a !important;
+            /* zinc-800 */
+            border: 1px solid #3f3f46 !important;
+            /* zinc-700 */
+            color: white !important;
+            border-radius: 0.75rem !important;
+            padding: 0.75rem !important;
+        }
+
+        .ts-dropdown {
+            background-color: #18181b !important;
+            /* zinc-900 */
+            border: 1px solid #3f3f46 !important;
+            color: white !important;
+        }
+
+        .ts-dropdown .active {
+            background-color: #3f3f46 !important;
+            /* zinc-700 */
+            color: #10b981 !important;
+            /* emerald-500 */
+        }
+
+        .ts-control input {
+            color: white !important;
+        }
+
+        .clear-button {
+            color: #ef4444 !important;
+        }
+    </style>
 @endsection

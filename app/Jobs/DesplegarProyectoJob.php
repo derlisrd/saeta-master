@@ -50,13 +50,14 @@ class DesplegarProyectoJob implements ShouldQueue
             );
 
             foreach ($commands as $cmd) {
-                $output = $ssh->exec($cmd);
+                Log::info($cmd);
+                /* $output = $ssh->exec($cmd);
                 $exitCode = $ssh->getExitStatus();
 
                 if ($exitCode !== 0) {
                     Log::error("Command failed: $cmd", ['output' => $output, 'code' => $exitCode]);
                     throw new \Exception("Fallo comando: $cmd");
-                }
+                } */
             }
 
             $this->finalizeDeployment();
@@ -106,17 +107,34 @@ class DesplegarProyectoJob implements ShouldQueue
         $cmds = [
             "git clone -b {$repo->branch} '{$secureUrl}' {$this->fullPath}",
             "echo '{$envEncoded}' | base64 -d > {$this->fullPath}/.env",
-            "cd {$this->fullPath} && composer install --no-dev --optimize-autoloader",
-            "cd {$this->fullPath} && php artisan key:generate && php artisan jwt:secret --force",
-            "cd {$this->fullPath} && php artisan migrate --seed --force",
+            //"cd {$this->fullPath} && composer install --no-dev --optimize-autoloader",
+            //"cd {$this->fullPath} && php artisan key:generate && php artisan jwt:secret --force",
+            //"cd {$this->fullPath} && php artisan migrate --seed --force",
         ];
 
-        foreach ($repo->comandos as $c) {
-            $comandoFinal = str_replace('{{path}}', $this->fullPath, $c->comando);
-            // Si el comando debe ejecutarse dentro de la carpeta del proyecto
-            $cmds[] = "cd {$this->fullPath} && {$comandoFinal}";
+        $fases = [
+            'install' => $repo->install_commands,
+            'build'   => $repo->build_commands,
+            'setup'   => $repo->setup_commands,
+        ];
+
+        foreach ($fases as $fase => $contenido) {
+            if (!empty($contenido)) {
+                // Convertimos el texto en un array de líneas
+                $lineas = explode("\n", str_replace("\r", "", $contenido));
+                foreach ($lineas as $linea) {
+                    $linea = trim($linea);
+                    if ($linea) {
+                        // Cada comando se ejecuta dentro de la carpeta del proyecto
+                        $cmds[] = "cd {$this->fullPath} && {$linea}";
+                    }
+                }
+            }
         }
 
+        
+
+        $cmds[] = "cd {$this->path} && git remote set-url origin {$repo->url_git}";
 
         return $cmds;
     }
@@ -170,15 +188,18 @@ class DesplegarProyectoJob implements ShouldQueue
 
     private function getNginxConfig(): string
     {
-        return '
+        $domain = $this->fullDomain;
+        $basePath = $this->basePath;
+        $publicPath = $this->path . '/public';
+
+        return "
 server {
     listen 80;
-    server_name ' . $this->fullDomain . ';
-    root ' . $this->basePath . ';
-    #index index.html index.php;
-    
+    server_name {$domain};
+    root {$basePath};
+
     location /admin {
-       alias ' . $this->basePath . '/admin/dist/;
+        alias {$basePath}/admin/dist/;
         index index.html;
         try_files \$uri \$uri/ /admin/index.html;
         
@@ -187,31 +208,35 @@ server {
         }
     }
 
-    location ~ ^/admin/(.*\.(js|css|png|jpg|jpeg|gif|svg|ico|json|woff|woff2|ttf|eot))$ {
-        alias ' . $this->basePath . '/admin/dist/\$1;
+    location ~ ^/admin/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|json|woff|woff2|ttf|eot))$ {
+        alias {$basePath}/admin/dist/\$1;
     }
     
     location /v1 {
         try_files \$uri \$uri/ /v1/index.php?\$query_string;
     }
 
-    location ~ ^/v1/index\.php(/|$) {
+    location ~ ^/v1/index\\.php(/|$) {
         fastcgi_pass unix:/run/php/php8.2-fpm.sock;
         fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME ' . $this->fullPath . '/public/index.php;
+        fastcgi_param SCRIPT_FILENAME {$publicPath}/index.php;
         include fastcgi_params;
     }
 
     location / {
+        root {$publicPath};
+        index index.php index.html;
         try_files \$uri \$uri/ /index.php?\$query_string;
     }
-    location ~ \.php$ {
+
+    location ~ \\.php$ {
         include snippets/fastcgi-php.conf;
         fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        # Aquí escapamos las variables de Nginx para que PHP no las toque
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include fastcgi_params;
     }
-}';
+}";
     }
     /** * HELPERS 
      */
@@ -230,8 +255,8 @@ server {
     {
         DbVms::create([
                 'dominio_id' => $this->dominio->id,
-                'host' => $this->dominio->db_host,
-                'port' => $this->dominio->db_port,
+                'db_host' => $this->dominio->db_host,
+                'db_port' => $this->dominio->db_port,
                 'db_name' => $this->dominio->db_name,
                 'db_user' => $this->dominio->db_user,
                 'db_pass' => $this->dominio->db_pass,

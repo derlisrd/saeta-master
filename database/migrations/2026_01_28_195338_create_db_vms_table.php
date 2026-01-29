@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('db_vms', function (Blueprint $table) {
             $table->id();
             $table->foreignId('dominio_id')->constrained()->onDelete('cascade');
-            $table->string('host')->default('127.0.0.1');
-            $table->integer('port')->default(5432);
+            $table->string('db_host')->default('127.0.0.1');
+            $table->integer('db_port')->default(5432);
             $table->string('db_name');
             $table->string('db_user');
             $table->string('db_pass');

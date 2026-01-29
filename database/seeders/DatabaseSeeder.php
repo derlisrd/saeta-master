@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Admin;
-
+use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -21,6 +21,12 @@ class DatabaseSeeder extends Seeder
 
         Admin::create([
             'name' => 'Administrador',
+            'email' => env('EMAIL_SEED'),
+            'password' =>$password
+        ]);
+        User::create([
+            'name' => 'Administrador',
+            'username' => env('EMAIL_SEED'),
             'email' => env('EMAIL_SEED'),
             'password' =>$password
         ]);

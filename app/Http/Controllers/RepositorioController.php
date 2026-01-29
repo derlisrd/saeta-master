@@ -74,6 +74,10 @@ class RepositorioController extends Controller
             'url_git'  => $request->clone_url, // Guardamos la URL de clonación real
             'branch'   => $request->branch,
             'tipo'     => $request->tipo,
+            'install_commands' => $request->install_commands,
+            'build_commands' => $request->build_commands ,
+            'setup_commands' => $request->setup_commands,
+            'output_path' => $request->output_path,
         ]);
 
         return redirect()->route('repositorios-lista')->with('success', 'Repositorio registrado.');
