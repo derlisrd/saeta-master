@@ -96,8 +96,14 @@ class DesplegarProyectoJob implements ShouldQueue
     {
         $repo = $this->dominio->repositorio;
         $envEncoded = base64_encode($this->getEnvContent());
+
+        $rawUrl = trim($repo->url_git);
+        $token = config('services.github.token');
+
+        $secureUrl = str_replace('https://', "https://x-access-token:{$token}@", $rawUrl);
+        // aqui se ejecuta el github clone aqui poner
         return [
-            "git clone -b {$repo->branch} {$repo->url_git} {$this->path}",
+            "git clone -b {$repo->branch} '{$secureUrl}' {$this->path}",
             "echo '{$envEncoded}' | base64 -d > {$this->path}/.env",
             "cd {$this->path} && composer install --no-dev --optimize-autoloader",
             "cd {$this->path} && php artisan key:generate && php artisan jwt:secret --force",
@@ -116,7 +122,7 @@ class DesplegarProyectoJob implements ShouldQueue
             $nginxCmd,
             "sudo ln -s /etc/nginx/sites-available/{$this->fullDomain} /etc/nginx/sites-enabled/",
             "sudo nginx -t && sudo systemctl reload nginx", // Validar antes de Certbot
-            "sudo certbot --nginx -d " . $this->fullDomain . " --non-interactive --agree-tos -m " . $this->dominio->user->email . "--redirect",
+            "sudo certbot --nginx -d " . $this->fullDomain . " --non-interactive --agree-tos -m " . $this->dominio->user->email . " --redirect",
 
             "sudo systemctl reload nginx",
             "sudo chown -R " . $this->dominio->vm->usuario . ":www-data {$this->path}",

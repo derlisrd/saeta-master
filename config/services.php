@@ -14,6 +14,9 @@ return [
     |
     */
 
+    'github' => [
+        'token' => env('GITHUB_TOKEN'),
+    ],
     'cloudflare' => [
         'api_url' => env('CLOUDFLARE_API_URL'),
         'api_token' => env('CLOUDFLARE_API_KEY'),

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\DesplegarProyectoJob;
+use App\Jobs\EliminarDominioJob;
 use App\Models\Dominio;
 use App\Models\Repositorio;
 use App\Models\User;
@@ -134,7 +135,7 @@ class DominioController extends Controller
 
     public function destroy($id)
     {
-        $dominio = Dominio::findOrFail($id);
+        $dominio = Dominio::with(['user', 'vm', 'repositorio', 'envs', 'db_vms'])->findOrFail($id);
 
         // 1. Opcional: Podrías intentar borrar el registro DNS en Cloudflare aquí
         // Para simplificar, primero borramos el registro local.
@@ -143,7 +144,8 @@ class DominioController extends Controller
             $nombre = $dominio->nombre;
             $fullDomain = "{$dominio->subdominio}.{$dominio->dominio}";
 
-            $dominio->delete();
+            //$dominio->delete();
+            EliminarDominioJob::dispatch($dominio);
 
             return redirect()->route('dominios-lista')->with('success', "El dominio {$nombre} ({$fullDomain}) ha sido eliminado del panel.");
         } catch (\Exception $e) {

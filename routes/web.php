@@ -13,7 +13,10 @@ Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login
 Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
 
 
+
 Route::group(['middleware' => ['auth:web']], function () {
+
+    
 
     Route::prefix('/admin')->group(function () {
         Route::view('/','admin.index')->name('admin-index');
@@ -37,6 +40,8 @@ Route::group(['middleware' => ['auth:web']], function () {
         Route::get('/repositorios/crear',[RepositorioController::class, 'formulario'])->name('repositorios-formulario');
         Route::post('/repositorios/crear',[RepositorioController::class, 'store'])->name('repositorios-store');
         Route::delete('/repositorios/{id}/eliminar', [RepositorioController::class, 'destroy'])->name('repositorios-destroy');
+        
+        Route::get('/github/branches', [RepositorioController::class, 'getBranches'])->name('github-branches');
 
         Route::get('/clientes',[ClientesController::class,'lista'])->name('clientes-lista');
         Route::get('/clientes/crear',[ClientesController::class, 'formulario'])->name('clientes-formulario');
