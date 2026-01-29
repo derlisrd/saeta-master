@@ -114,9 +114,10 @@ class DesplegarProyectoJob implements ShouldQueue
 
         return [
             $nginxCmd,
-            "sudo ln -sf /etc/nginx/sites-available/{$this->fullDomain} /etc/nginx/sites-enabled/",
+            "sudo ln -s /etc/nginx/sites-available/{$this->fullDomain} /etc/nginx/sites-enabled/",
             "sudo nginx -t && sudo systemctl reload nginx", // Validar antes de Certbot
-            "sudo certbot --nginx -d {$this->fullDomain} --non-interactive --agree-tos -m {$this->dominio->user->email} || true",
+            "sudo certbot --nginx -d ". $this->fullDomain ." --non-interactive --agree-tos -m ". $this->dominio->user->email ."--redirect",
+
             "sudo systemctl reload nginx",
             "sudo chown -R " .$this->dominio->vm->usuario.":www-data {$this->path}",
             "sudo chmod -R 775 {$this->path}/storage {$this->path}/bootstrap/cache",
