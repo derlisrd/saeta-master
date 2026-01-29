@@ -3,7 +3,7 @@
 @section('page-title', 'Infraestructura: Servidores (VMs)')
 
 @section('content')
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2  gap-6">
 
         {{-- Formulario Lateral para Nueva VM --}}
         <div class="lg:col-span-1">
@@ -80,67 +80,6 @@
                     </button>
                 </div>
             </form>
-        </div>
-
-        {{-- Listado de Servidores --}}
-        <div class="lg:col-span-3">
-            <div class="bg-zinc-900/50 border border-zinc-700 rounded-2xl overflow-hidden shadow-xl">
-                <table class="w-full text-left">
-                    <thead class="bg-zinc-800/50 border-b border-zinc-700">
-                        <tr>
-                            <th class="px-6 py-4 text-zinc-400 text-[10px] font-bold uppercase">Servidor</th>
-                            <th class="px-6 py-4 text-zinc-400 text-[10px] font-bold uppercase">Acceso</th>
-                            <th class="px-6 py-4 text-zinc-400 text-[10px] font-bold uppercase text-center">Instancias</th>
-                            <th class="px-6 py-4 text-zinc-400 text-[10px] font-bold uppercase text-right">Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-zinc-800">
-                        @forelse($vms as $vm)
-                            <tr class="hover:bg-zinc-800/30 transition-colors">
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="p-2 bg-zinc-800 rounded-lg border border-zinc-700">
-                                            <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <div class="text-sm font-bold text-white">{{ $vm->nombre }}</div>
-                                            <div class="text-[10px] text-zinc-500 uppercase">{{ $vm->so ?? 'Ubuntu Linux' }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 text-sm font-mono text-emerald-400">
-                                    {{ $vm->usuario }}@<span
-                                        class="text-zinc-300">{{ $vm->ip }}</span>:{{ $vm->puerto }}
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <span
-                                        class="bg-zinc-800 text-zinc-400 text-xs font-bold px-2.5 py-1 rounded-full border border-zinc-700">
-                                        {{ $vm->dominios_count }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-right">
-                                    <div class="flex flex-col items-end">
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">
-                                            ● Online
-                                        </span>
-                                        <span class="text-[9px] text-zinc-600 mt-1 font-mono">Latencia: 24ms</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" class="px-6 py-12 text-center text-zinc-500 text-sm italic">No hay servidores registrados aún.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
         </div>
     </div>
 @endsection
