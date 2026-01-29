@@ -49,9 +49,10 @@ class DominioController extends Controller
             'vm_id'          => 'required|exists:vms,id',
             'repositorio_id' => 'required|exists:repositorios,id',
             'nombre'         => 'required|string|max:255',
-            'subdominio'     => 'required|string|max:255|unique:dominios,subdominio',
+            'subdominio'     => 'required|string|max:24', //|unique:dominios,subdominio',
             'zone_id'        => 'required|exists:zones,id',
             'vencimiento'    => 'required|date',
+            'stack'         => 'required',
 
             // Campos que vienen del Paso 2 del formulario
             'db_connection'  => 'required|in:pgsql,mysql,sqlite',
@@ -70,6 +71,7 @@ class DominioController extends Controller
         $data['zone_id'] = $request->zone_id;
         $data['ip']      = $vm->ip; // Inyectamos la IP de la VM para Cloudflare y DB
         $data['protocol'] = 'https://'; // Por defecto
+        $data['full_path'] = '/var/www/html/'.$zonaDB->dominio . '/'.$request->path;
 
         // 4. Guardar en Base de Datos Local
         $dominio = Dominio::create($data);

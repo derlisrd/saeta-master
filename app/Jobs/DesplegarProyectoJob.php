@@ -18,6 +18,7 @@ class DesplegarProyectoJob implements ShouldQueue
     protected $dominio;
     protected $fullDomain;
     protected $path;
+    protected $fullPath;
     protected $basePath;
 
     public function __construct(Dominio $dominio)
@@ -26,7 +27,7 @@ class DesplegarProyectoJob implements ShouldQueue
         // Definimos rutas base desde el inicio
         $this->fullDomain = "{$dominio->subdominio}.{$dominio->dominio}";
         $this->basePath = "/var/www/html/{$this->fullDomain}";
-        $this->path = "{$this->basePath}/" . ltrim($dominio->path, '/');
+        $this->fullPath = $this->dominio->full_path; // "{$this->basePath}/" . ltrim($dominio->path, '/');
     }
 
     public function handle()
@@ -69,14 +70,14 @@ class DesplegarProyectoJob implements ShouldQueue
 
     private function prepareDirectoryCommands(): array
     {
-        if (empty($this->path) || $this->path === '/') {
+        if (empty($this->fullPath) || $this->fullPath === '/') {
             throw new \Exception("Path inválido para eliminar");
         }
 
         return [
-            "sudo rm -rf {$this->path}",
-            "sudo mkdir -p {$this->path}",
-            "sudo chown {$this->dominio->vm->usuario}:{$this->dominio->vm->usuario} {$this->path}",
+            "sudo rm -rf {$this->fullPath}",
+            "sudo mkdir -p {$this->fullPath}",
+            "sudo chown {$this->dominio->vm->usuario}:{$this->dominio->vm->usuario} {$this->fullPath}",
         ];
     }
 
@@ -101,14 +102,23 @@ class DesplegarProyectoJob implements ShouldQueue
         $token = config('services.github.token');
 
         $secureUrl = str_replace('https://', "https://x-access-token:{$token}@", $rawUrl);
-        // aqui se ejecuta el github clone aqui poner
-        return [
-            "git clone -b {$repo->branch} '{$secureUrl}' {$this->path}",
-            "echo '{$envEncoded}' | base64 -d > {$this->path}/.env",
-            "cd {$this->path} && composer install --no-dev --optimize-autoloader",
-            "cd {$this->path} && php artisan key:generate && php artisan jwt:secret --force",
-            "cd {$this->path} && php artisan migrate --seed --force",
+
+        $cmds = [
+            "git clone -b {$repo->branch} '{$secureUrl}' {$this->fullPath}",
+            "echo '{$envEncoded}' | base64 -d > {$this->fullPath}/.env",
+            "cd {$this->fullPath} && composer install --no-dev --optimize-autoloader",
+            "cd {$this->fullPath} && php artisan key:generate && php artisan jwt:secret --force",
+            "cd {$this->fullPath} && php artisan migrate --seed --force",
         ];
+
+        foreach ($repo->comandos as $c) {
+            $comandoFinal = str_replace('{{path}}', $this->fullPath, $c->comando);
+            // Si el comando debe ejecutarse dentro de la carpeta del proyecto
+            $cmds[] = "cd {$this->fullPath} && {$comandoFinal}";
+        }
+
+
+        return $cmds;
     }
 
     private function serverConfigurationCommands(): array
@@ -125,8 +135,8 @@ class DesplegarProyectoJob implements ShouldQueue
             "sudo certbot --nginx -d " . $this->fullDomain . " --non-interactive --agree-tos -m " . $this->dominio->user->email . " --redirect",
 
             "sudo systemctl reload nginx",
-            "sudo chown -R " . $this->dominio->vm->usuario . ":www-data {$this->path}",
-            "sudo chmod -R 775 {$this->path}/storage {$this->path}/bootstrap/cache",
+            "sudo chown -R " . $this->dominio->vm->usuario . ":www-data {$this->fullPath}",
+            "sudo chmod -R 775 {$this->fullPath}/storage {$this->fullPath}/bootstrap/cache",
         ];
     }
 
@@ -188,7 +198,7 @@ server {
     location ~ ^/v1/index\.php(/|$) {
         fastcgi_pass unix:/run/php/php8.2-fpm.sock;
         fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME ' . $this->path . '/public/index.php;
+        fastcgi_param SCRIPT_FILENAME ' . $this->fullPath . '/public/index.php;
         include fastcgi_params;
     }
 

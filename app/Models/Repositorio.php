@@ -42,4 +42,9 @@ class Repositorio extends Model
     {
         return $this->hasMany(Dominio::class, 'repositorio_id');
     }
+
+    public function comandos()
+    {
+        return $this->hasMany(Comando::class)->orderBy('orden', 'asc');
+    }
 }
