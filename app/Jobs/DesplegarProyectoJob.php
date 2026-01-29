@@ -116,10 +116,10 @@ class DesplegarProyectoJob implements ShouldQueue
             $nginxCmd,
             "sudo ln -s /etc/nginx/sites-available/{$this->fullDomain} /etc/nginx/sites-enabled/",
             "sudo nginx -t && sudo systemctl reload nginx", // Validar antes de Certbot
-            "sudo certbot --nginx -d ". $this->fullDomain ." --non-interactive --agree-tos -m ". $this->dominio->user->email ."--redirect",
+            "sudo certbot --nginx -d " . $this->fullDomain . " --non-interactive --agree-tos -m " . $this->dominio->user->email . "--redirect",
 
             "sudo systemctl reload nginx",
-            "sudo chown -R " .$this->dominio->vm->usuario.":www-data {$this->path}",
+            "sudo chown -R " . $this->dominio->vm->usuario . ":www-data {$this->path}",
             "sudo chmod -R 775 {$this->path}/storage {$this->path}/bootstrap/cache",
         ];
     }
@@ -152,16 +152,17 @@ class DesplegarProyectoJob implements ShouldQueue
         return $env;
     }
 
-    private function getNginxConfig(): string{
-    return '
+    private function getNginxConfig(): string
+    {
+        return '
 server {
     listen 80;
-    server_name '.$this->fullDomain.';
-    root '.$this->basePath.';
+    server_name ' . $this->fullDomain . ';
+    root ' . $this->basePath . ';
     #index index.html index.php;
     
     location /admin {
-       alias '.$this->basePath. '/admin/dist/;
+       alias ' . $this->basePath . '/admin/dist/;
         index index.html;
         try_files \$uri \$uri/ /admin/index.html;
         
@@ -171,7 +172,7 @@ server {
     }
 
     location ~ ^/admin/(.*\.(js|css|png|jpg|jpeg|gif|svg|ico|json|woff|woff2|ttf|eot))$ {
-        alias '. $this->basePath . '/admin/dist/\$1;
+        alias ' . $this->basePath . '/admin/dist/\$1;
     }
     
     location /v1 {
@@ -181,7 +182,7 @@ server {
     location ~ ^/v1/index\.php(/|$) {
         fastcgi_pass unix:/run/php/php8.2-fpm.sock;
         fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME '.$this->basePath.'/public/index.php;
+        fastcgi_param SCRIPT_FILENAME ' . $this->path . '/public/index.php;
         include fastcgi_params;
     }
 
@@ -195,8 +196,7 @@ server {
         include fastcgi_params;
     }
 }';
-
-}
+    }
     /** * HELPERS 
      */
 
@@ -212,10 +212,11 @@ server {
 
     private function finalizeDeployment()
     {
-        DbVms::updateOrCreate(
-            ['dominio_id' => $this->dominio->id],
+        DbVms::create(
             [
-                'host' => '127.0.0.1',
+                'dominio_id' => $this->dominio->id,
+
+                'host' => $this->dominio->db_host,
                 'port' => $this->dominio->db_port,
                 'db_name' => $this->dominio->db_name,
                 'db_user' => $this->dominio->db_user,
@@ -224,7 +225,7 @@ server {
             ]
         );
 
-        $this->dominio->update(['desplegado' => true]);
+        $this->dominio->update(['desplegado' => 1]);
         Log::info("✅ Proyecto listo: {$this->fullDomain}");
     }
 }
