@@ -1,181 +1,120 @@
 @extends('layouts.admin')
 
-@section('page-title', 'Infraestructura: Servidores (VMs)')
-
 @section('content')
-    <div class="grid grid-cols-1 md:grid-cols-2  gap-6">
-
-        {{-- Formulario Lateral para Nueva VM --}}
-        <div class="lg:col-span-1">
-            <form method="POST" action="{{ route('vms-store') }}" enctype="multipart/form-data"
-                class="bg-zinc-900/50 border border-zinc-700 p-6 rounded-2xl shadow-xl backdrop-blur-sm sticky top-6">
-                @csrf
-                <h3 class="text-white font-bold uppercase text-xs tracking-widest mb-6 flex items-center gap-2">
-                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                    Registrar Servidor
-                </h3>
-
-                <div class="space-y-4">
-                    @if ($errors->any())
-                        <div
-                            class="mb-6 flex items-center p-4 border-l-4 border-red-500 bg-red-500/10 text-red-400 rounded-r-lg">
-                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                                    clip-rule="evenodd"></path>
-                            </svg>
-                            <span class="text-sm font-medium">{{ $errors->first() }}</span>
-                        </div>
-                    @endif
-                    <div>
-                        <label class="text-zinc-500 text-[10px] font-bold uppercase">Nombre Identificador</label>
-                        <input name="nombre" type="text" placeholder="Ej. Producción 01" required
-                            class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-2.5 text-sm text-white focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all">
-                    </div>
-                    <div>
-                        <label class="text-zinc-500 text-[10px] font-bold uppercase">Dirección IP</label>
-                        <input name="ip" type="text" placeholder="1.2.3.4" required
-                            class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-2.5 text-sm text-white font-mono outline-none">
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-zinc-500 text-[10px] font-bold uppercase">Usuario</label>
-                            <input name="usuario" type="text" value="root"
-                                class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-2.5 text-sm text-white">
-                        </div>
-                        <div>
-                            <label class="text-zinc-500 text-[10px] font-bold uppercase">Puerto</label>
-                            <input name="puerto" type="number" value="22"
-                                class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-2.5 text-sm text-white">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="text-zinc-500 text-[10px] font-bold uppercase">Web Server Principal</label>
-                        <div class="grid grid-cols-2 gap-2 mt-1">
-                            <label
-                                class="flex items-center gap-2 bg-zinc-800 p-2 rounded-lg border border-zinc-700 cursor-pointer">
-                                <input type="radio" name="web_server_type" value="nginx" checked>
-                                <span class="text-xs text-white">Nginx</span>
-                            </label>
-                            <label
-                                class="flex items-center gap-2 bg-zinc-800 p-2 rounded-lg border border-zinc-700 cursor-pointer">
-                                <input type="radio" name="web_server_type" value="apache">
-                                <span class="text-xs text-white">Apache</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <label class="text-zinc-500 text-[10px] font-bold uppercase">Llave Privada SSH (id_rsa)</label>
-                        <div class="flex items-center justify-center w-full">
-                            <label id="dropzone"
-                                class="flex flex-col items-center justify-center w-full h-32 border-2 border-zinc-700 border-dashed rounded-lg cursor-pointer bg-zinc-800/50 hover:bg-zinc-800 transition-all overflow-hidden relative">
-
-                                <div id="file-preview-zone" class="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <svg id="upload-icon" class="w-8 h-8 mb-4 text-zinc-500" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                    </svg>
-                                    <p id="file-name" class="mb-2 text-sm text-zinc-400 text-center px-4">
-                                        <span class="font-semibold">Click para subir</span> o arrastra tu id_rsa
-                                    </p>
-                                    <p id="file-status" class="text-xs text-zinc-500 uppercase font-bold tracking-tighter">
-                                        OpenSSH Private Key</p>
-                                </div>
-
-                                {{-- Input real --}}
-                                <input name="ssh_key_file" id="ssh_key_file" type="file" class="hidden"
-                                    onchange="handleFileSelect(this)" />
-                            </label>
-                        </div>
-                    </div>
-                    <button type="button" onclick="validateAndSubmitVM()"
-                        class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-widest transition-all shadow-lg shadow-emerald-500/10 mt-4">
-                        Guardar VM
-                    </button>
-                </div>
-            </form>
+<div class="max-w-5xl mx-auto px-4 py-12">
+    
+    @if($needsOnboarding)
+        <div class="text-center mb-12">
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">¡Bienvenido a tu Panel de Despliegue!</h1>
+            <p class="text-zinc-500 mt-2 text-lg">Para comenzar a desplegar proyectos, necesitamos configurar los cimientos.</p>
         </div>
-    </div>
-@endsection
 
-@section('scripts')
-    <script>
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            background: '#18181b',
-            color: '#fff'
-        });
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            {{-- Paso 1: Máquinas Virtuales --}}
+            <div class="group relative bg-zinc-900 border {{ $stats['vms'] > 0 ? 'border-emerald-500/50' : 'border-zinc-800' }} p-8 rounded-3xl transition-all hover:border-sky-500/50 shadow-2xl">
+                <div class="absolute -top-4 left-8 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full text-[10px] font-bold uppercase tracking-widest {{ $stats['vms'] > 0 ? 'text-emerald-500' : 'text-zinc-500' }}">
+                    Paso 01
+                </div>
+                
+                <div class="mb-6 flex justify-between items-start">
+                    <div class="p-3 bg-sky-500/10 rounded-2xl">
+                        <svg class="w-8 h-8 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-width="1.5" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                        </svg>
+                    </div>
+                    @if($stats['vms'] > 0)
+                        <span class="bg-emerald-500/20 text-emerald-400 p-1 rounded-full">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                        </span>
+                    @endif
+                </div>
 
-        // Función para mostrar feedback visual del archivo
-        function handleFileSelect(input) {
-            const fileNameDisplay = document.getElementById('file-name');
-            const fileStatus = document.getElementById('file-status');
-            const dropzone = document.getElementById('dropzone');
-            const icon = document.getElementById('upload-icon');
+                <h3 class="text-white font-bold text-xl mb-2">Servidores (VM)</h3>
+                <p class="text-zinc-500 text-sm mb-6">Conecta tus servidores vía IP para poder instalar tus aplicaciones.</p>
+                
+                <a href="{{ route('vms-create') }}" class="inline-flex items-center gap-2 text-sm font-bold {{ $stats['vms'] > 0 ? 'text-zinc-500 hover:text-white' : 'text-sky-400 hover:text-sky-300' }} transition-colors">
+                    {{ $stats['vms'] > 0 ? 'Gestionar Servidores' : 'Agregar mi primera VM' }}
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                </a>
+            </div>
 
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
+            {{-- Paso 2: Zonas Cloudflare --}}
+            <div class="group relative bg-zinc-900 border {{ $stats['zonas'] > 0 ? 'border-emerald-500/50' : 'border-zinc-800' }} p-8 rounded-3xl transition-all hover:border-sky-500/50 shadow-2xl">
+                <div class="absolute -top-4 left-8 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full text-[10px] font-bold uppercase tracking-widest {{ $stats['zonas'] > 0 ? 'text-emerald-500' : 'text-zinc-500' }}">
+                    Paso 02
+                </div>
+                
+                <div class="mb-6 flex justify-between items-start">
+                    <div class="p-3 bg-amber-500/10 rounded-2xl">
+                        <svg class="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-width="1.5" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                        </svg>
+                    </div>
+                    @if($stats['zonas'] > 0)
+                        <span class="bg-emerald-500/20 text-emerald-400 p-1 rounded-full">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                        </span>
+                    @endif
+                </div>
 
-                // Actualizar UI
-                fileNameDisplay.innerHTML = `<span class="text-emerald-400 font-mono">${file.name}</span>`;
-                fileStatus.innerText = "Archivo Cargado Correctamente";
-                dropzone.classList.replace('border-zinc-700', 'border-emerald-500');
-                dropzone.classList.add('bg-emerald-500/5');
-                icon.classList.replace('text-zinc-500', 'text-emerald-500');
+                <h3 class="text-white font-bold text-xl mb-2">Zonas DNS</h3>
+                <p class="text-zinc-500 text-sm mb-6">Agrega tus dominios de Cloudflare para automatizar los subdominios.</p>
+                
+                <a href="{{ route('zonas-create') }}" class="inline-flex items-center gap-2 text-sm font-bold {{ $stats['zonas'] > 0 ? 'text-zinc-500 hover:text-white' : 'text-amber-400 hover:text-amber-300' }} transition-colors">
+                    {{ $stats['zonas'] > 0 ? 'Gestionar Dominios' : 'Conectar Cloudflare' }}
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                </a>
+            </div>
 
-                Toast.fire({
-                    icon: 'success',
-                    title: 'Archivo detectado'
-                });
-            }
-        }
+            {{-- Paso 3: Stacks de Repositorios --}}
+            <div class="group relative bg-zinc-900 border {{ $stats['repos'] > 0 ? 'border-emerald-500/50' : 'border-zinc-800' }} p-8 rounded-3xl transition-all hover:border-sky-500/50 shadow-2xl">
+                <div class="absolute -top-4 left-8 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full text-[10px] font-bold uppercase tracking-widest {{ $stats['repos'] > 0 ? 'text-emerald-500' : 'text-zinc-500' }}">
+                    Paso 03
+                </div>
+                
+                <div class="mb-6 flex justify-between items-start">
+                    <div class="p-3 bg-emerald-500/10 rounded-2xl">
+                        <svg class="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-width="1.5" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    @if($stats['repos'] > 0)
+                        <span class="bg-emerald-500/20 text-emerald-400 p-1 rounded-full">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
+                        </span>
+                    @endif
+                </div>
 
-        // Validación y Envío
-        function validateAndSubmitVM() {
-            const form = document.querySelector('form[action="{{ route('vms-store') }}"]');
-            const nombre = form.querySelector('[name="nombre"]').value.trim();
-            const ip = form.querySelector('[name="ip"]').value.trim();
-            const sshFile = document.getElementById('ssh_key_file').files[0];
+                <h3 class="text-white font-bold text-xl mb-2">Stack Base</h3>
+                <p class="text-zinc-500 text-sm mb-6">Configura tus repositorios de GitHub y sus comandos de compilación.</p>
+                
+                <a href="{{ route('repositorios-create') }}" class="inline-flex items-center gap-2 text-sm font-bold {{ $stats['repos'] > 0 ? 'text-zinc-500 hover:text-white' : 'text-emerald-400 hover:text-emerald-300' }} transition-colors">
+                    {{ $stats['repos'] > 0 ? 'Gestionar Repos' : 'Configurar Stacks' }}
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                </a>
+            </div>
+        </div>
 
-            let errors = [];
+        {{-- Botón de Acción Principal (Sólo si todo está listo) --}}
+        @if(!$needsOnboarding)
+            <div class="mt-12 text-center animate-bounce">
+                <a href="{{ route('dominios-create') }}" class="bg-white text-black px-10 py-4 rounded-2xl font-black uppercase tracking-tighter hover:bg-sky-400 transition-all shadow-xl shadow-sky-500/20">
+                    🚀 ¡Todo listo! Desplegar mi primer Dominio
+                </a>
+            </div>
+        @endif
 
-            if (!nombre) errors.push("un Nombre");
-            if (!ip) errors.push("una dirección IP");
-            if (!sshFile) errors.push("la Llave Privada SSH");
+    @else
+        {{-- Dashboard Normal cuando ya hay datos --}}
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {{-- Aquí irían tus widgets de estadísticas normales --}}
+            <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+                <p class="text-zinc-500 text-[10px] uppercase font-bold tracking-widest">Total Dominios</p>
+                <h2 class="text-white text-3xl font-bold mt-1">{{ $stack['dominios'] }}</h2>
+            </div>
+        </div>
+    @endif
 
-            if (errors.length > 0) {
-                Toast.fire({
-                    icon: 'error',
-                    title: 'Faltan campos',
-                    text: `Por favor indica ${errors.join(', ')}.`
-                });
-                return;
-            }
-
-            // Validación extra: ¿Es una IP válida?
-            const ipRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
-            if (!ipRegex.test(ip)) {
-                Toast.fire({
-                    icon: 'error',
-                    title: 'IP Inválida',
-                    text: 'Ingresa un formato de IP correcto (Ej: 1.2.3.4)'
-                });
-                return;
-            }
-
-            // Si todo está bien, enviamos
-            Toast.fire({
-                icon: 'info',
-                title: 'Registrando Servidor...',
-                timer: 1500
-            });
-
-            setTimeout(() => form.submit(), 1000);
-        }
-    </script>
+</div>
 @endsection

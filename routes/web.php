@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\ClientesController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DominioController;
 use App\Http\Controllers\RepositorioController;
 use App\Http\Controllers\VmsController;
@@ -19,7 +20,7 @@ Route::group(['middleware' => ['auth:web']], function () {
     
 
     Route::prefix('/admin')->group(function () {
-        Route::view('/','admin.index')->name('admin-index');
+        Route::get('/',[DashboardController::class,'index'])->name('admin-index');
         
         Route::get('/dominios',[DominioController::class,'lista'])->name('dominios-lista');
         Route::get('/dominios/crear',[DominioController::class,'formulario'])->name('dominios-formulario');
