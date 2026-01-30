@@ -60,7 +60,7 @@ class Dominio extends Model
 
     public function repositorio()
     {
-        return $this->belongsTo(Repositorio::class);
+        return $this->belongsTo(Repositorio::class, 'repositorio_id', 'id');
     }
 
     public function envs()

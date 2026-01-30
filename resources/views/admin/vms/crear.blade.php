@@ -49,6 +49,21 @@
                                 class="w-full bg-zinc-800 border border-zinc-700 rounded-lg p-2.5 text-sm text-white">
                         </div>
                     </div>
+                    <div>
+                        <label class="text-zinc-500 text-[10px] font-bold uppercase">Web Server Principal</label>
+                        <div class="grid grid-cols-2 gap-2 mt-1">
+                            <label
+                                class="flex items-center gap-2 bg-zinc-800 p-2 rounded-lg border border-zinc-700 cursor-pointer">
+                                <input type="radio" name="web_server_type" value="nginx" checked>
+                                <span class="text-xs text-white">Nginx</span>
+                            </label>
+                            <label
+                                class="flex items-center gap-2 bg-zinc-800 p-2 rounded-lg border border-zinc-700 cursor-pointer">
+                                <input type="radio" name="web_server_type" value="apache">
+                                <span class="text-xs text-white">Apache</span>
+                            </label>
+                        </div>
+                    </div>
                     <div class="mt-4">
                         <label class="text-zinc-500 text-[10px] font-bold uppercase">Llave Privada SSH (id_rsa)</label>
                         <div class="flex items-center justify-center w-full">

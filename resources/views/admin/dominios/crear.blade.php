@@ -35,7 +35,7 @@
             <div id="step-1" class="space-y-6">
                 <h2 class="text-white font-bold text-lg border-b border-zinc-800 pb-2">Paso 1: Dominio e Infraestructura
                 </h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" >
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {{-- Cliente --}}
                     <div class="flex flex-col gap-2 ">
                         <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Cliente
@@ -56,22 +56,20 @@
                             {{-- Opción Backend --}}
                             <label
                                 class="relative flex flex-col p-4 bg-zinc-800/50 border border-zinc-700 rounded-2xl cursor-pointer hover:bg-zinc-800 transition-all group">
-                                <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center justify-between">
                                     <span class="text-white font-bold text-sm">Backend / Fullstack</span>
                                     <input type="radio" name="stack" value="backend" checked
-                                        onchange="toggleStackFields(this.value)"
-                                        class="w-4 h-4">
+                                        onchange="toggleStackFields(this.value)" class="w-4 h-4">
                                 </div>
                             </label>
 
                             {{-- Opción Frontend --}}
                             <label
                                 class="relative flex flex-col p-4 bg-zinc-800/50 border border-zinc-700 rounded-2xl cursor-pointer hover:bg-zinc-800 transition-all group">
-                                <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center justify-between">
                                     <span class="text-white font-bold text-sm">Frontend SPA</span>
                                     <input type="radio" name="stack" value="frontend"
-                                        onchange="toggleStackFields(this.value)"
-                                        class="w-4 h-4">
+                                        onchange="toggleStackFields(this.value)" class="w-4 h-4">
                                 </div>
                             </label>
                         </div>
@@ -121,34 +119,31 @@
                     </div>
                     <div class="flex flex-col gap-2">
                         <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Subdominio</label>
-                        <input name="subdominio" id="input-subdominio" value="{{ old('subdominio') }}" placeholder="api"
+                        <input name="subdominio" id="input-subdominio" value="{{ old('subdominio') }}"
+                            placeholder="example.dominio.com"
                             class="bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none focus:border-sky-500" />
                     </div>
 
                     {{-- Input: Path (Ruta en el Servidor) --}}
-                    <div class="flex flex-col gap-2 md:col-span-2">
-                        <label
-                            class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                            </svg>
-                            Ruta de Instalación (Server Path)
-                        </label>
-                        <div class="flex">
-                            <span
-                                class="inline-flex items-center px-4 rounded-l-xl border border-r-0 border-zinc-700 bg-zinc-800 text-zinc-500 text-sm">
-                                /var/www/html/
-                            </span>
-                            <input name="path" id="input-path" name="path"
-                                class="bg-zinc-800/50 border border-zinc-700 rounded-r-xl p-3 text-zinc-400 flex-1 outline-none focus:ring-2 focus:ring-sky-500/50"
-                                placeholder="core" />
+                    <div class="flex flex-col gap-2">
+                        <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Carpeta de
+                            instalacion</label>
+                        <div class="flex flex-col gap-2">
+                            <input name="path" id="input-path"
+                                class="bg-zinc-800/50 border border-zinc-700 rounded-xl p-3 text-zinc-400 flex-1 outline-none focus:ring-2 focus:ring-sky-500/50"
+                                placeholder="Ejemplo: /var/www/html/core" />
+
+                            {{-- Nuevo Botón --}}
+                            <button type="button" onclick="autoGeneratePath()"
+                                class="text-[10px] text-sky-500 hover:text-sky-400 font-bold uppercase tracking-widest flex items-center gap-1 self-start ml-1 transition-all">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                Generar ruta desde subdominio
+                            </button>
                         </div>
                     </div>
-
-
-
-
                 </div>
 
                 <div class="flex justify-end mt-8">
@@ -160,7 +155,7 @@
             </div>
 
             {{-- PASO 2: DATABASE Y API --}}
-            <div id="step-2" class="hidden space-y-6" >
+            <div id="step-2" class="hidden space-y-6">
                 <h2 class="text-white font-bold text-lg border-b border-zinc-800 pb-2">Paso 2: Base de Datos y Seguridad
                 </h2>
 
@@ -222,7 +217,7 @@
                         </div>
                     </div>
 
-                    
+
                 </div>
 
                 <div class="grid grid-col-1 md:grid-cols-2 gap-4">
@@ -280,33 +275,32 @@
 
 @section('scripts')
     <script>
+        function toggleStackFields(stackValue) {
+            const dbContainer = document.getElementById('db-fields-container');
+            // Buscamos todos los inputs y selects dentro del contenedor de DB
+            const dbInputs = dbContainer.querySelectorAll('input, select');
 
-function toggleStackFields(stackValue) {
-    const dbContainer = document.getElementById('db-fields-container');
-    // Buscamos todos los inputs y selects dentro del contenedor de DB
-    const dbInputs = dbContainer.querySelectorAll('input, select');
+            if (stackValue === 'frontend') {
+                // Animación de salida y ocultar
+                dbContainer.style.opacity = '0';
+                setTimeout(() => {
+                    dbContainer.classList.add('hidden');
+                    // Quitamos el atributo required para que el form sea válido
+                    dbInputs.forEach(el => el.required = false);
+                }, 200);
 
-    if (stackValue === 'frontend') {
-        // Animación de salida y ocultar
-        dbContainer.style.opacity = '0';
-        setTimeout(() => {
-            dbContainer.classList.add('hidden');
-            // Quitamos el atributo required para que el form sea válido
-            dbInputs.forEach(el => el.required = false);
-        }, 200);
-
-        Toast.fire({
-            icon: 'info',
-            title: 'Modo Frontend Activo',
-            text: 'Se han deshabilitado los campos de base de datos.'
-        });
-    } else {
-        // Mostrar y volver a poner required
-        dbContainer.classList.remove('hidden');
-        setTimeout(() => dbContainer.style.opacity = '1', 10);
-        dbInputs.forEach(el => el.required = true);
-    }
-}
+                Toast.fire({
+                    icon: 'info',
+                    title: 'Modo Frontend Activo',
+                    text: 'Se han deshabilitado los campos de base de datos.'
+                });
+            } else {
+                // Mostrar y volver a poner required
+                dbContainer.classList.remove('hidden');
+                setTimeout(() => dbContainer.style.opacity = '1', 10);
+                dbInputs.forEach(el => el.required = true);
+            }
+        }
 
         function confirmFinalSubmit() {
             const envContainer = document.getElementById('env-container');
@@ -492,6 +486,37 @@ function toggleStackFields(stackValue) {
             </div>
         `;
             container.insertAdjacentHTML('beforeend', html);
+        }
+    </script>
+
+    <script>
+        function autoGeneratePath() {
+            const subdominio = document.getElementById('input-subdominio').value.trim();
+            const zoneSelect = document.querySelector('select[name="zone_id"]');
+            const pathInput = document.getElementById('input-path');
+
+            if (!subdominio) {
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Escribe un subdominio primero'
+                });
+                return;
+            }
+
+            // Obtener el nombre del dominio de la zona seleccionada (el texto del <option>)
+            const dominioBase = zoneSelect.options[zoneSelect.selectedIndex].text;
+
+            // Unir: subdominio.dominio.com
+            const fullDomain = `${subdominio}.${dominioBase}`;
+
+            // Seteamos la ruta estandar (puedes cambiar /var/www/html/ por la que prefieras)
+            pathInput.value = `/var/www/html/${fullDomain}`;
+
+            Toast.fire({
+                icon: 'success',
+                title: 'Ruta generada',
+                text: pathInput.value
+            });
         }
     </script>
 @endsection

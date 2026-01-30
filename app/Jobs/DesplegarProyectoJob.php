@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\{DbVms, Dominio};
+use App\Models\{DbVms, Dominio, ServerTemplate};
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -20,13 +20,15 @@ class DesplegarProyectoJob implements ShouldQueue
     protected $path;
     protected $fullPath;
     protected $basePath;
+    protected $repo;
 
     public function __construct(Dominio $dominio)
     {
         $this->dominio = $dominio;
         // Definimos rutas base desde el inicio
         $this->fullDomain = "{$dominio->subdominio}.{$dominio->dominio}";
-        $this->basePath = "/var/www/html/{$this->fullDomain}";
+        $this->repo = $dominio->repositorio;
+        $this->basePath = $this->dominio->path ."/" .$this->fullDomain;
         $this->fullPath = $this->dominio->full_path; // "{$this->basePath}/" . ltrim($dominio->path, '/');
     }
 
@@ -96,7 +98,7 @@ class DesplegarProyectoJob implements ShouldQueue
 
     private function deploymentCommands(): array
     {
-        $repo = $this->dominio->repositorio;
+        $repo = $this->repo;
         $envEncoded = base64_encode($this->getEnvContent());
 
         $rawUrl = trim($repo->url_git);
@@ -189,50 +191,41 @@ class DesplegarProyectoJob implements ShouldQueue
     private function getNginxConfig(): string
     {
         $domain = $this->fullDomain;
-        $basePath = $this->basePath;
-        $publicPath = $this->path . '/public';
+        //$basePath = $this->basePath;
+        //$publicPath = $this->path . '/public';
+        $fullPath = $this->fullPath;
+        $outputPath =  $this->fullPath .'/'. $this->repo->output_path;
 
         return "
 server {
     listen 80;
+    listen [::]:80;
     server_name {$domain};
-    root {$basePath};
+    root {$outputPath};
 
-    location /admin {
-        alias {$basePath}/admin/dist/;
-        index index.html;
-        try_files \$uri \$uri/ /admin/index.html;
-        
-        location ~ \.php$ {
-            return 403;
-        }
-    }
+    add_header X-Frame-Options ".'"SAMEORIGIN"'. ";
+    add_header X-Content-Type-Options ".'"nosniff"'.";
 
-    location ~ ^/admin/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|json|woff|woff2|ttf|eot))$ {
-        alias {$basePath}/admin/dist/\$1;
-    }
+    index index.php;
+    charset utf-8;
+
+    error_page 404 /index.php;
     
-    location /v1 {
-        try_files \$uri \$uri/ /v1/index.php?\$query_string;
-    }
-
-    location ~ ^/v1/index\\.php(/|$) {
-        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME {$publicPath}/index.php;
-        include fastcgi_params;
-    }
-
     location / {
-        root {$publicPath};
-        index index.php index.html;
         try_files \$uri \$uri/ /index.php?\$query_string;
     }
+
+    location ~ ^/index\\.php(/|$) {
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        ffastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_hide_header X-Powered-By;
+    }
+
 
     location ~ \\.php$ {
         include snippets/fastcgi-php.conf;
         fastcgi_pass unix:/run/php/php8.2-fpm.sock;
-        # Aquí escapamos las variables de Nginx para que PHP no las toque
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
         include fastcgi_params;
     }
@@ -266,4 +259,22 @@ server {
         $this->dominio->update(['desplegado' => 1]);
         Log::info("✅ Proyecto listo: {$this->fullDomain}");
     }
+
+
+
+
+    private function generateWebConfig($dominio): string
+    {
+        // Supongamos que el dominio tiene un template_id asociado
+        $template = ServerTemplate::find($dominio->template_id);
+
+        $config = $template->config_skeleton;
+
+        // Reemplazamos los placeholders por los datos reales del dominio
+        $busqueda = ['{{dominio}}', '{{path}}', '{{public_path}}'];
+        $reemplazo = [$dominio->subdominio . '.' . $dominio->zona->dominio, $dominio->path, $dominio->path . '/public'];
+
+        return str_replace($busqueda, $reemplazo, $config);
+    }
+
 }

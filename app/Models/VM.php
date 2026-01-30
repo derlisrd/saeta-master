@@ -15,7 +15,8 @@ class VM extends Model
         'usuario',
         'ssh_key',
         'puerto',
-        'so'
+        'so',
+        'web_server_type'
     ];
 
     protected $casts = [

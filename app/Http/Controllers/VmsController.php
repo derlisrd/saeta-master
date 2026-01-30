@@ -22,6 +22,7 @@ class VmsController extends Controller
         $request->validate([
             'nombre' => 'required',
             'ip' => 'required|ip',
+            'web_server_type'=> 'required|in:apache,nginx',
             'ssh_key_file' => 'required|file', // Validamos que subió un archivo
         ]);
 
@@ -32,6 +33,7 @@ class VmsController extends Controller
         $vm->nombre = $request->nombre;
         $vm->ip = $request->ip;
         $vm->usuario = $request->usuario ?? 'root';
+        $vm->web_server_type = $request->web_server_type;
         $vm->puerto = $request->puerto ?? 22;
         $vm->ssh_key = $llaveContenido; // Se guarda encriptado por el cast del modelo
         $vm->save();

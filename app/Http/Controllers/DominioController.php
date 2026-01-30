@@ -71,7 +71,7 @@ class DominioController extends Controller
         $data['zone_id'] = $request->zone_id;
         $data['ip']      = $vm->ip; // Inyectamos la IP de la VM para Cloudflare y DB
         $data['protocol'] = 'https://'; // Por defecto
-        $data['full_path'] = '/var/www/html/'.$zonaDB->dominio . '/'.$request->path;
+        $data['full_path'] = $request->path;
 
         // 4. Guardar en Base de Datos Local
         $dominio = Dominio::create($data);
@@ -86,7 +86,12 @@ class DominioController extends Controller
                 }
             }
         }
+        if(env('APP_ENV') === 'local'){
+            DesplegarProyectoJob::dispatch($dominio);
 
+            return redirect()->route('dominios-lista')
+                ->with('success', "Dominio registrado. El despliegue de la infraestructura ha comenzado.");
+        }
         // 5. Sincronización con Cloudflare
         $apiToken = config('services.cloudflare.api_token');
         $cfUrl = "https://api.cloudflare.com/client/v4/zones/{$zonaDB->zone_id}/dns_records";
