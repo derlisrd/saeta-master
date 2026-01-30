@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Admin;
+use App\Models\Stack;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -29,6 +30,13 @@ class DatabaseSeeder extends Seeder
             'username' => env('EMAIL_SEED'),
             'email' => env('EMAIL_SEED'),
             'password' =>$password
+        ]);
+
+        Stack::create([
+            'nombre'=>'Laravel',
+            'slug'=>'laravel',
+            'color_hex'=> '#FF2D20',
+            'icon'=> 'fa-laravel'
         ]);
         // User::factory(10)->create();
     }

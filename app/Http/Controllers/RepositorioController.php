@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Repositorio;
+use App\Models\Stack;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -53,9 +54,11 @@ class RepositorioController extends Controller
     public function formulario()
     {
         $repos = $this->getGithubRepos();
+        $stacks = Stack::all();
 
         return view('admin.repositorios.crear', [
-            'repositorios' => $repos, // Ahora vienen de GitHub
+            'repositorios' => $repos,
+            'stacks'=>$stacks
         ]);
     }
 

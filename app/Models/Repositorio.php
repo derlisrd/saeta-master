@@ -47,4 +47,14 @@ class Repositorio extends Model
         return $this->hasMany(Dominio::class, 'repositorio_id');
     }
 
+    public function stack()
+    {
+        return $this->belongsTo(Stack::class);
+    }
+
+    public function needsBuild(): bool
+    {
+        return !empty($this->build_commands);
+    }
+
 }
