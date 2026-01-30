@@ -50,16 +50,18 @@
                         class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all">
                 </div>
 
+                {{-- Selector de Stack Base --}}
                 <div>
-                    <label class="text-zinc-500 text-[10px] font-bold uppercase ml-1">Tipo de App</label>
-                    <select name="tipo"
-                        class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none">
-                        <option value="laravel">Laravel</option>
-                        <option value="nodejs">Node.js</option>
-                        <option value="static">HTML Estático</option>
-                        <option value="wordpress">WordPress</option>
+                    <label class="text-zinc-500 text-[10px] font-bold uppercase ml-1 mb-2 block">Tecnología (Stack)</label>
+                    <select name="stack_id" id="stack-select" required onchange="updateDefaultCommands(this)"
+                        class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none focus:ring-2 focus:ring-sky-500/50">
+                        <option value="" disabled selected>Seleccione Tecnología...</option>
+                        @foreach ($stacks as $stack)
+                            <option value="{{ $stack->id }}" data-slug="{{ $stack->slug }}">
+                                {{ $stack->nombre }}
+                            </option>
+                        @endforeach
                     </select>
-
                 </div>
 
 
