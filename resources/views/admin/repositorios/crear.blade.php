@@ -1,9 +1,9 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="max-w-3xl mx-auto">
+    <div class="max-w-5xl mx-auto">
         <form action="{{ route('repositorios-store') }}" method="POST"
-            class="bg-zinc-900/50 border border-zinc-700 p-8 rounded-3xl shadow-2xl backdrop-blur-sm">
+            class="bg-zinc-900 border border-zinc-700 p-8 rounded-3xl shadow-2xl backdrop-blur-sm">
             @csrf
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-white font-bold text-lg uppercase tracking-widest">Configurar Stack Base</h2>
@@ -16,7 +16,7 @@
                 </button>
             </div>
 
-            <div class="space-y-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-5 grid grid-cols-1 md:grid-cols-3 gap-4">
 
                 {{-- Selector con Buscador --}}
                 <div>
@@ -44,11 +44,7 @@
                 {{-- Campo oculto para guardar la URL de clonación real --}}
                 <input type="hidden" name="clone_url" id="clone-url-input">
 
-                <div>
-                    <label class="text-zinc-500 text-[10px] font-bold uppercase ml-1">Nombre del Stack</label>
-                    <input name="nombre" id="stack-nombre" type="text" placeholder="Ej: Laravel Core v10" required
-                        class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all">
-                </div>
+                
 
                 {{-- Selector de Stack Base --}}
                 <div>
@@ -59,6 +55,25 @@
                         @foreach ($stacks as $stack)
                             <option value="{{ $stack->id }}" data-slug="{{ $stack->slug }}">
                                 {{ $stack->nombre }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="text-zinc-500 text-[10px] font-bold uppercase ml-1">Nombre del Stack</label>
+                    <input name="nombre" id="stack-nombre" type="text" placeholder="Ej: Laravel Core v10" required
+                        class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all">
+                </div>
+
+                <div>
+                    <label class="text-zinc-500 text-[10px] font-bold uppercase ml-1 mb-2 block">Tipo stack</label>
+                    <select name="stack_id" id="stack-select" required onchange="updateDefaultCommands(this)"
+                        class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none focus:ring-2 focus:ring-sky-500/50">
+                        <option value="" disabled selected>Seleccione tipo de stack...</option>
+                        @foreach ($tipos_stacks as $stack)
+                            <option value="{{ $stack['tipo'] }}">
+                                {{ $stack['nombre'] }}
                             </option>
                         @endforeach
                     </select>
@@ -222,11 +237,10 @@
             onChange: function(value) {
                 // value es el full_name del repo
                 if (!value) return;
-
-                // Obtener el elemento seleccionado para sacar el data-clone
                 const option = this.options[value];
-                const cloneUrl = option.dataClone; // TomSelect mapea data-attributes
+                const cloneUrl = option.dataClone;
 
+                document.getElementById('clone-url-input').value = cloneUrl;
                 // Llamar a tu función de ramas
                 fetchBranchesFromValue(value, cloneUrl);
 

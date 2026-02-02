@@ -56,31 +56,50 @@ class RepositorioController extends Controller
         $repos = $this->getGithubRepos();
         $stacks = Stack::all();
 
+        $tipos_stacks = [
+            [
+                'nombre' => 'Back-end',
+                'tipo'   => 'backend'
+            ],
+            [
+                'nombre' => 'Front-end',
+                'tipo'   => 'backend'
+            ],
+            [
+                'nombre' => 'No aplica',
+                'tipo'   => 'no aplica'
+            ],
+            ];
+
         return view('admin.repositorios.crear', [
             'repositorios' => $repos,
+            'tipos_stacks' => $tipos_stacks,
             'stacks'=>$stacks
         ]);
     }
 
     public function store(Request $request)
     {
+        // 1. Cambiamos la validación
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'clone_url' => 'required|url', // Validamos la URL oculta que sí es una URL
+            'clone_url' => 'required|url',
             'branch' => 'required|string',
-            'tipo' => 'required|in:laravel,nodejs,static,wordpress',
+            'stack_id' => 'required|exists:stacks,id', // Validamos que el stack exista
         ]);
 
-        // Creamos un array con los datos limpios
+        // 2. Creamos el registro con stack_id
         Repositorio::create([
-            'nombre'   => $request->nombre,
-            'url_git'  => $request->clone_url, // Guardamos la URL de clonación real
-            'branch'   => $request->branch,
-            'tipo'     => $request->tipo,
+            'nombre'           => $request->nombre,
+            'url_git'          => $request->clone_url,
+            'branch'           => $request->branch,
+            'stack_id'         => $request->stack_id,
             'install_commands' => $request->install_commands,
-            'build_commands' => $request->build_commands ,
-            'setup_commands' => $request->setup_commands,
-            'output_path' => $request->output_path,
+            'build_commands'   => $request->build_commands,
+            'setup_commands'   => $request->setup_commands,
+            'tipo_stack'     => $request->tipo_stack,
+            // Si viene vacío, ponemos 'public' por defecto
+            'output_path'      => $request->output_path ?? 'public',
         ]);
 
         return redirect()->route('repositorios-lista')->with('success', 'Repositorio registrado.');

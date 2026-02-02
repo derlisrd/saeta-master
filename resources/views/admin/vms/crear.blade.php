@@ -1,120 +1,133 @@
 @extends('layouts.admin')
 
+@section('page-title', 'Registrar Servidor')
+
 @section('content')
-<div class="max-w-5xl mx-auto px-4 py-12">
-    
-    @if($needsOnboarding)
-        <div class="text-center mb-12">
-            <h1 class="text-3xl font-extrabold text-white tracking-tight">¡Bienvenido a tu Panel de Despliegue!</h1>
-            <p class="text-zinc-500 mt-2 text-lg">Para comenzar a desplegar proyectos, necesitamos configurar los cimientos.</p>
-        </div>
+<div class="max-w-4xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-white">Nueva Instancia (VM)</h1>
+        <p class="text-zinc-500">Configura el acceso SSH y el stack de software para despliegues automáticos.</p>
+    </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <form action="{{ route('vms-store') }}" method="POST" enctype="multipart/form-data" 
+        class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl">
+        @csrf
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             
-            {{-- Paso 1: Máquinas Virtuales --}}
-            <div class="group relative bg-zinc-900 border {{ $stats['vms'] > 0 ? 'border-emerald-500/50' : 'border-zinc-800' }} p-8 rounded-3xl transition-all hover:border-sky-500/50 shadow-2xl">
-                <div class="absolute -top-4 left-8 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full text-[10px] font-bold uppercase tracking-widest {{ $stats['vms'] > 0 ? 'text-emerald-500' : 'text-zinc-500' }}">
-                    Paso 01
-                </div>
+            {{-- SECCIÓN 1: IDENTIFICACIÓN --}}
+            <div class="space-y-6">
+                <h3 class="text-sky-500 font-bold text-xs uppercase tracking-widest border-b border-zinc-800 pb-2">Información Básica</h3>
                 
-                <div class="mb-6 flex justify-between items-start">
-                    <div class="p-3 bg-sky-500/10 rounded-2xl">
-                        <svg class="w-8 h-8 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-width="1.5" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
-                        </svg>
-                    </div>
-                    @if($stats['vms'] > 0)
-                        <span class="bg-emerald-500/20 text-emerald-400 p-1 rounded-full">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
-                        </span>
-                    @endif
+                <div>
+                    <label class="text-zinc-400 text-[10px] font-bold uppercase mb-2 block">Nombre del Servidor</label>
+                    <input type="text" name="nombre" placeholder="Ej: DO-NYC-Production" required
+                        class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-sky-500/50 outline-none transition-all">
                 </div>
 
-                <h3 class="text-white font-bold text-xl mb-2">Servidores (VM)</h3>
-                <p class="text-zinc-500 text-sm mb-6">Conecta tus servidores vía IP para poder instalar tus aplicaciones.</p>
-                
-                <a href="{{ route('vms-create') }}" class="inline-flex items-center gap-2 text-sm font-bold {{ $stats['vms'] > 0 ? 'text-zinc-500 hover:text-white' : 'text-sky-400 hover:text-sky-300' }} transition-colors">
-                    {{ $stats['vms'] > 0 ? 'Gestionar Servidores' : 'Agregar mi primera VM' }}
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                </a>
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="col-span-2">
+                        <label class="text-zinc-400 text-[10px] font-bold uppercase mb-2 block">Dirección IP</label>
+                        <input type="text" name="ip" placeholder="0.0.0.0" required
+                            class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none">
+                    </div>
+                    <div>
+                        <label class="text-zinc-400 text-[10px] font-bold uppercase mb-2 block">Puerto</label>
+                        <input type="number" name="puerto" value="22" required
+                            class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-zinc-400 text-[10px] font-bold uppercase mb-2 block">Sistema Operativo</label>
+                    <select name="so" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none">
+                        <option value="ubuntu">Ubuntu (Recomendado)</option>
+                        <option value="debian">Debian</option>
+                        <option value="centos">CentOS</option>
+                    </select>
+                </div>
             </div>
 
-            {{-- Paso 2: Zonas Cloudflare --}}
-            <div class="group relative bg-zinc-900 border {{ $stats['zonas'] > 0 ? 'border-emerald-500/50' : 'border-zinc-800' }} p-8 rounded-3xl transition-all hover:border-sky-500/50 shadow-2xl">
-                <div class="absolute -top-4 left-8 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full text-[10px] font-bold uppercase tracking-widest {{ $stats['zonas'] > 0 ? 'text-emerald-500' : 'text-zinc-500' }}">
-                    Paso 02
-                </div>
+            {{-- SECCIÓN 2: ACCESO SSH --}}
+            <div class="space-y-6">
+                <h3 class="text-amber-500 font-bold text-xs uppercase tracking-widest border-b border-zinc-800 pb-2">Credenciales SSH</h3>
                 
-                <div class="mb-6 flex justify-between items-start">
-                    <div class="p-3 bg-amber-500/10 rounded-2xl">
-                        <svg class="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-width="1.5" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
-                        </svg>
+                <div>
+                    <label class="text-zinc-400 text-[10px] font-bold uppercase mb-2 block">Usuario del Sistema</label>
+                    <input type="text" name="usuario" value="root" required
+                        class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none">
+                </div>
+
+                <div>
+                    <label class="text-zinc-400 text-[10px] font-bold uppercase mb-2 block">Archivo de Llave Privada</label>
+                    <div class="border-2 border-dashed border-zinc-700 rounded-2xl p-6 text-center hover:border-sky-500 transition-colors bg-zinc-800/30">
+                        <input type="file" name="ssh_key_file" id="ssh_key_file" class="hidden" required onchange="updateFileName(this)">
+                        <label for="ssh_key_file" class="cursor-pointer">
+                            <svg class="w-8 h-8 text-zinc-600 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                            </svg>
+                            <span id="file-name" class="text-xs text-zinc-500 font-mono">Seleccionar id_rsa...</span>
+                        </label>
                     </div>
-                    @if($stats['zonas'] > 0)
-                        <span class="bg-emerald-500/20 text-emerald-400 p-1 rounded-full">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
-                        </span>
-                    @endif
                 </div>
-
-                <h3 class="text-white font-bold text-xl mb-2">Zonas DNS</h3>
-                <p class="text-zinc-500 text-sm mb-6">Agrega tus dominios de Cloudflare para automatizar los subdominios.</p>
-                
-                <a href="{{ route('zonas-create') }}" class="inline-flex items-center gap-2 text-sm font-bold {{ $stats['zonas'] > 0 ? 'text-zinc-500 hover:text-white' : 'text-amber-400 hover:text-amber-300' }} transition-colors">
-                    {{ $stats['zonas'] > 0 ? 'Gestionar Dominios' : 'Conectar Cloudflare' }}
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                </a>
-            </div>
-
-            {{-- Paso 3: Stacks de Repositorios --}}
-            <div class="group relative bg-zinc-900 border {{ $stats['repos'] > 0 ? 'border-emerald-500/50' : 'border-zinc-800' }} p-8 rounded-3xl transition-all hover:border-sky-500/50 shadow-2xl">
-                <div class="absolute -top-4 left-8 px-3 py-1 bg-zinc-900 border border-zinc-800 rounded-full text-[10px] font-bold uppercase tracking-widest {{ $stats['repos'] > 0 ? 'text-emerald-500' : 'text-zinc-500' }}">
-                    Paso 03
-                </div>
-                
-                <div class="mb-6 flex justify-between items-start">
-                    <div class="p-3 bg-emerald-500/10 rounded-2xl">
-                        <svg class="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-width="1.5" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                    </div>
-                    @if($stats['repos'] > 0)
-                        <span class="bg-emerald-500/20 text-emerald-400 p-1 rounded-full">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>
-                        </span>
-                    @endif
-                </div>
-
-                <h3 class="text-white font-bold text-xl mb-2">Stack Base</h3>
-                <p class="text-zinc-500 text-sm mb-6">Configura tus repositorios de GitHub y sus comandos de compilación.</p>
-                
-                <a href="{{ route('repositorios-create') }}" class="inline-flex items-center gap-2 text-sm font-bold {{ $stats['repos'] > 0 ? 'text-zinc-500 hover:text-white' : 'text-emerald-400 hover:text-emerald-300' }} transition-colors">
-                    {{ $stats['repos'] > 0 ? 'Gestionar Repos' : 'Configurar Stacks' }}
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                </a>
             </div>
         </div>
 
-        {{-- Botón de Acción Principal (Sólo si todo está listo) --}}
-        @if(!$needsOnboarding)
-            <div class="mt-12 text-center animate-bounce">
-                <a href="{{ route('dominios-create') }}" class="bg-white text-black px-10 py-4 rounded-2xl font-black uppercase tracking-tighter hover:bg-sky-400 transition-all shadow-xl shadow-sky-500/20">
-                    🚀 ¡Todo listo! Desplegar mi primer Dominio
-                </a>
-            </div>
-        @endif
+        {{-- SECCIÓN 3: STACK DE SOFTWARE --}}
+        <div class="mt-8 pt-8 border-t border-zinc-800">
+            <h3 class="text-emerald-500 font-bold text-xs uppercase tracking-widest mb-6">Stack de Software Instalado</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <label class="text-zinc-400 text-[10px] font-bold uppercase mb-4 block">Servidor Web</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="web_server_type" value="nginx" checked class="hidden peer">
+                            <div class="p-4 border border-zinc-700 rounded-2xl bg-zinc-800/50 text-center peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 transition-all">
+                                <span class="block text-white font-bold text-sm">NGINX</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="web_server_type" value="apache" class="hidden peer">
+                            <div class="p-4 border border-zinc-700 rounded-2xl bg-zinc-800/50 text-center peer-checked:border-amber-500 peer-checked:bg-amber-500/10 transition-all">
+                                <span class="block text-white font-bold text-sm">Apache2</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
 
-    @else
-        {{-- Dashboard Normal cuando ya hay datos --}}
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {{-- Aquí irían tus widgets de estadísticas normales --}}
-            <div class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
-                <p class="text-zinc-500 text-[10px] uppercase font-bold tracking-widest">Total Dominios</p>
-                <h2 class="text-white text-3xl font-bold mt-1">{{ $stack['dominios'] }}</h2>
+                <div>
+                    <label class="text-zinc-400 text-[10px] font-bold uppercase mb-2 block">Versión de PHP</label>
+                    <select name="php_version" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none">
+                        <option value="8.3">PHP 8.3 (Recomendado)</option>
+                        <option value="8.2" selected>PHP 8.2</option>
+                        <option value="8.1">PHP 8.1</option>
+                        <option value="7.4">PHP 7.4</option>
+                    </select>
+                </div>
             </div>
         </div>
-    @endif
 
+        <div class="mt-10 flex gap-4">
+            <button type="submit" 
+                class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-black py-4 rounded-2xl uppercase text-xs tracking-widest transition-all shadow-lg shadow-sky-900/40">
+                Registrar Servidor en Inventario
+            </button>
+            <a href="{{ route('vms-lista') }}" 
+                class="px-8 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 font-bold py-4 rounded-2xl uppercase text-xs tracking-widest transition-all text-center">
+                Cancelar
+            </a>
+        </div>
+    </form>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    function updateFileName(input) {
+        const name = input.files[0] ? input.files[0].name : "Seleccionar id_rsa...";
+        document.getElementById('file-name').textContent = name;
+        document.getElementById('file-name').classList.add('text-sky-400');
+    }
+</script>
 @endsection

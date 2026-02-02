@@ -19,7 +19,8 @@ return new class extends Migration
             $table->text('ssh_key')->nullable(); // Por si usas llaves distintas por VM
             $table->integer('puerto')->default(22);
             $table->string('web_server_type')->default('nginx');
-            $table->string('so')->nullable(); // Ej: Ubuntu 22.04
+            $table->string('php_version')->default('8.2');
+            $table->string('so')->default('ubuntu'); // Ej: Ubuntu 22.04
             $table->timestamps();
         });
     }

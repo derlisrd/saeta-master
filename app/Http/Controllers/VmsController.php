@@ -113,27 +113,40 @@ class VmsController extends Controller
     }
 
 
-    public function executeConsole(Request $request, VM $vm)
+    public function executeConsole(Request $request, $id)
     {
+        // Buscamos la VM por ID
+        $vm = VM::findOrFail($id);
+
         $request->validate(['command' => 'required|string']);
 
-        // Evitar comandos extremadamente peligrosos por accidente
-        $prohibidos = ['rm -rf /', 'mkfs', 'shutdown', 'reboot'];
+        // Seguridad básica
+        $prohibidos = ['rm -rf /', 'mkfs', 'shutdown', 'reboot', 'dd '];
         foreach ($prohibidos as $p) {
             if (str_contains($request->command, $p)) {
-                return response()->json(['output' => 'Error: Comando prohibido por seguridad.']);
+                return response()->json(['output' => 'Error: Comando prohibido.'], 403);
             }
         }
 
-        $ssh = new \phpseclib3\Net\SSH2($vm->ip, $vm->puerto);
-        $key = \phpseclib3\Crypt\PublicKeyLoader::load(file_get_contents(storage_path('app/ssh/id_rsa')));
+        try {
+            $ssh = new SSH2($vm->ip, (int)$vm->puerto);
 
-        if ($ssh->login($vm->usuario, $key)) {
-            // Ejecutamos el comando y capturamos la salida
+            // CARGA LA LLAVE DESDE LA DB (ya descifrada por Laravel)
+            $key = PublicKeyLoader::load($vm->ssh_key);
+
+            if (!$ssh->login($vm->usuario, $key)) {
+                return response()->json(['output' => 'Error: Autenticación fallida con el usuario ' . $vm->usuario], 401);
+            }
+
+            // Ejecutar comando
             $output = $ssh->exec($request->command);
-            return response()->json(['output' => $output ?: 'Comando ejecutado (sin salida).']);
-        }
 
-        return response()->json(['output' => 'Error: No se pudo conectar por SSH.'], 500);
+            return response()->json([
+                'success' => true,
+                'output' => $output ?: 'Comando ejecutado (sin salida de consola).'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['output' => 'Error SSH: ' . $e->getMessage()], 500);
+        }
     }
 }

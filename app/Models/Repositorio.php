@@ -16,15 +16,15 @@ class Repositorio extends Model
      * Los atributos que se pueden asignar masivamente.
      */
     protected $fillable = [
-        'nombre',      // Nombre descriptivo (ej: Core Backend)
-        'url_git',     // URL completa del repo (https://...)
-        'branch',      // Rama por defecto (main/master)
-        'tipo',        // laravel, nodejs, static, wordpress
-        'descripcion',
+        'nombre',
+        'url_git',
+        'branch',
+        'stack_id', // <--- IMPORTANTE
+        'tipo_stack',
         'install_commands',
         'build_commands',
         'setup_commands',
-        'output_path', 
+        'output_path'
     ];
 
     /**
