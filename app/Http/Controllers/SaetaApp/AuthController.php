@@ -113,7 +113,9 @@ class AuthController extends Controller
                     'user_id' => $user->id
                 ])->fromUser($user);
 
-                $dominios = Dominio::where('user_id', $user->id)->get();
+                $dominios = Dominio::where('user_id', $user->id)
+                ->select('full_dominio','id','api_key')
+                ->get();
 
                 return response()->json([
                     'success' => true,
