@@ -53,7 +53,7 @@
                         <div class="flex flex-col">
                             <span class="text-zinc-600 text-[10px] uppercase font-bold">Dominio</span>
                             <span class="text-zinc-300 text-xs font-mono bg-black/30 p-2 rounded-lg mt-1 border border-zinc-800">
-                               {{$dominio->protocol}} {{ $dominio->full_dominio }}
+                               {{$dominio->protocol}}{{ $dominio->full_dominio }}
                             </span>
                         </div>
                     </div>
