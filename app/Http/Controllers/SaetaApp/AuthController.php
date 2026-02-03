@@ -122,6 +122,7 @@ class AuthController extends Controller
                             'id' => $item->id,
                             'api_key' => $item->api_key,
                             'full_dominio' => $item->full_dominio,
+                            'api_url'=> $item->full_dominio . '/api',
                             'url' => $item->protocol . $item->full_dominio,
                             'nombre'=>$item->nombre,
                             'vencimiento'=>$item->vencimiento
