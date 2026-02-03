@@ -136,13 +136,15 @@ class DesplegarProyectoJob implements ShouldQueue
         // Obtenemos el contenido de la plantilla dinámica
         $configContent = $this->getDynamicServerConfig();
 
+        $escapedConfig = str_replace('"', '\"', $configContent);
+
         if ($webServer === 'nginx') {
             $availablePath = "/etc/nginx/sites-available/{$this->fullDomain}";
             $enabledPath = "/etc/nginx/sites-enabled/{$this->fullDomain}";
 
             $cmds = [
                 "sudo bash -c \"cat << 'EOF' > $availablePath
-$configContent
+$escapedConfig
 EOF
 \"",
                 "sudo ln -sf $availablePath $enabledPath",
@@ -153,7 +155,7 @@ EOF
             $confFile = "/etc/apache2/sites-available/{$this->fullDomain}.conf";
             $cmds = [
                 "sudo bash -c \"cat << 'EOF' > $confFile
-$configContent
+$escapedConfig
 EOF
 \"",
                 "sudo a2ensite {$this->fullDomain}.conf",
