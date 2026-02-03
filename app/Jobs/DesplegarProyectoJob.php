@@ -140,13 +140,9 @@ class DesplegarProyectoJob implements ShouldQueue
         if ($webServer === 'nginx') {
             $availablePath = "/etc/nginx/sites-available/{$this->fullDomain}";
             $enabledPath = "/etc/nginx/sites-enabled/{$this->fullDomain}";
-            $configSegura = addcslashes($configContent, '$"');
 
             $cmds = [
-                "sudo bash -c \"cat << EOF > $availablePath
-$configSegura
-EOF
-\"",
+                "echo " . escapeshellarg($configContent) . " | sudo tee $availablePath > /dev/null",
                 "sudo ln -sf $availablePath $enabledPath",
                 "sudo nginx -t && sudo systemctl reload nginx",
             ];
