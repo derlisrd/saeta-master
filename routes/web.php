@@ -40,6 +40,10 @@ Route::group(['middleware' => ['auth:web']], function () {
         Route::get('/repositorios',[RepositorioController::class,'lista'])->name('repositorios-lista');
         Route::get('/repositorios/crear',[RepositorioController::class, 'formulario'])->name('repositorios-formulario');
         Route::post('/repositorios/crear',[RepositorioController::class, 'store'])->name('repositorios-store');
+
+
+        Route::get('/repositorios/{id}', [RepositorioController::class, 'editar'])->name('repositorios-editar');
+        Route::put('/repositorios/{id}', [RepositorioController::class, 'editar'])->name('repositorios-update');
         Route::delete('/repositorios/{id}/eliminar', [RepositorioController::class, 'destroy'])->name('repositorios-destroy');
         
         Route::get('/github/branches', [RepositorioController::class, 'getBranches'])->name('github-branches');

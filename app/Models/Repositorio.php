@@ -52,6 +52,10 @@ class Repositorio extends Model
         return $this->belongsTo(Stack::class);
     }
 
+    public function comandos(){
+        return $this->hasMany(Comando::class, 'repositorio_id');
+    }
+
     public function needsBuild(): bool
     {
         return !empty($this->build_commands);
