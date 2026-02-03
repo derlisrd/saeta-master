@@ -89,6 +89,7 @@ class AuthController extends Controller
 
             $user = User::where('email', $username)
                 ->orWhere('username', $username)
+                ->select('id','name')
                 ->first();
 
             if (!$user) {
