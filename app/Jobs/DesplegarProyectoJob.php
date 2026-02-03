@@ -53,13 +53,13 @@ class DesplegarProyectoJob implements ShouldQueue
 
             foreach ($commands as $cmd) {
                 Log::info($cmd);
-                /* $output = $ssh->exec($cmd);
+                $output = $ssh->exec($cmd);
                 $exitCode = $ssh->getExitStatus();
 
                 if ($exitCode !== 0) {
                     Log::error("Command failed: $cmd", ['output' => $output, 'code' => $exitCode]);
                     throw new \Exception("Fallo comando: $cmd");
-                } */
+                } 
             }
 
             $this->finalizeDeployment();
