@@ -79,7 +79,7 @@ class DominioController extends Controller
         $data['full_path'] = $request->path;
 
 
-        $data['full_dominio'] = 'https://' . $host;
+        $data['full_dominio'] =  $host;
         
         // 4. Guardar en Base de Datos Local
         $dominio = Dominio::create($data);

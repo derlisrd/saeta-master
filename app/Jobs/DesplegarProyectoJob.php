@@ -17,6 +17,7 @@ class DesplegarProyectoJob implements ShouldQueue
 
     protected $dominio;
     protected $fullDomain;
+    protected $fullUrl;
     protected $path;
     protected $fullPath;
     protected $basePath;
@@ -26,6 +27,7 @@ class DesplegarProyectoJob implements ShouldQueue
     {
         $this->dominio = $dominio;
         $this->fullDomain = $dominio->full_dominio;
+        $this->fullUrl = $dominio->protocol . $dominio->full_dominio;
         $this->repo = $dominio->repositorio;
         $this->basePath = rtrim($dominio->path, '/') . "/" . $this->fullDomain;
         $this->fullPath = $this->dominio->full_path; 
