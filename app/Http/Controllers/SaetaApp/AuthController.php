@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SaetaApp;
 
 use App\Http\Controllers\Controller;
+use App\Models\Dominio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
@@ -111,11 +112,14 @@ class AuthController extends Controller
                     'type' => 'refresh',
                     'user_id' => $user->id
                 ])->fromUser($user);
+
+                $dominios = [];
+
                 return response()->json([
                     'success' => true,
                     'results' => [
                         'user' => $user,
-                        'instancias'=>$user->dominios,
+                        'instancias'=>$dominios,
                         'tokenRaw' => $token,
                         'token' => 'Bearer ' . $token,
                         'refresh_token' => $refreshToken,

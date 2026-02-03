@@ -17,6 +17,7 @@ class Dominio extends Model
         'dns',
         'path',
         'full_path',
+        'full_dominio',
         'ip',
         'type',
         'principal',
@@ -70,5 +71,14 @@ class Dominio extends Model
 
     public function db_vms(){
         return $this->belongsTo(DbVms::class,'dominio_id','id');
+    }
+
+    public function getUrlCompletaAttribute()
+    {
+        $host = $this->subdominio
+            ? "{$this->subdominio}.{$this->dominio}"
+            : $this->dominio;
+
+        return "https://{$host}";
     }
 }

@@ -26,9 +26,10 @@ class DesplegarProyectoJob implements ShouldQueue
     {
         $this->dominio = $dominio;
         // Definimos rutas base desde el inicio
-        $this->fullDomain = "{$dominio->subdominio}.{$dominio->dominio}";
+        //$this->fullDomain = $dominio->subdominio? "{$dominio->subdominio}.{$dominio->dominio}" : $dominio->dominio;
+        $this->fullDomain = $dominio->full_dominio;
         $this->repo = $dominio->repositorio;
-        $this->basePath = $this->dominio->path ."/" .$this->fullDomain;
+        $this->basePath = rtrim($dominio->path, '/') . "/" . $this->fullDomain;
         $this->fullPath = $this->dominio->full_path; // "{$this->basePath}/" . ltrim($dominio->path, '/');
     }
 
@@ -51,6 +52,13 @@ class DesplegarProyectoJob implements ShouldQueue
                 $this->serverConfigurationCommands()
             );
 
+            if (env('APP_ENV') === 'local') {
+                foreach ($commands as $cmd) {
+                    Log::info($cmd);
+                }
+                $this->finalizeDeployment();
+                return;
+            }
             foreach ($commands as $cmd) {
                 Log::info($cmd);
                 $output = $ssh->exec($cmd);

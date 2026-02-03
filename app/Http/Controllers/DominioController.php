@@ -49,7 +49,7 @@ class DominioController extends Controller
             'vm_id'          => 'required|exists:vms,id',
             'repositorio_id' => 'required|exists:repositorios,id',
             'nombre'         => 'required|string|max:255',
-            'subdominio'     => 'required|string|max:24', //|unique:dominios,subdominio',
+            'subdominio'     => 'nullable|string|max:24', //|unique:dominios,subdominio',
             'zone_id'        => 'required|exists:zones,id',
             'vencimiento'    => 'required|date',
             'stack'         => 'required',
@@ -65,6 +65,11 @@ class DominioController extends Controller
 
         // 3. Preparar datos adicionales
         $zonaDB = Zone::where('id', $request->zone_id)->firstOrFail();
+        $dominioBase = $zonaDB->dominio;
+
+        $sub = trim($request->subdominio);
+        $host = !empty($sub) ? "{$sub}.{$dominioBase}" : $dominioBase;
+
 
         $data = $request->all();
         $data['dominio'] = $zonaDB->dominio;
@@ -73,6 +78,9 @@ class DominioController extends Controller
         $data['protocol'] = 'https://'; // Por defecto
         $data['full_path'] = $request->path;
 
+
+        $data['full_dominio'] = 'https://' . $host;
+        
         // 4. Guardar en Base de Datos Local
         $dominio = Dominio::create($data);
 
@@ -99,7 +107,7 @@ class DominioController extends Controller
             'Authorization' => 'Bearer ' . $apiToken,
             'Content-Type'  => 'application/json',
         ])->post($cfUrl, [
-            'name'    => $request->subdominio,
+            'name'    => $request->filled('subdominio') ? $request->subdominio : $dominioBase,
             'type'    => 'A',
             'content' => $vm->ip,
             'ttl'     => 3600,
