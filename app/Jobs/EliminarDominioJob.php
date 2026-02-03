@@ -15,14 +15,28 @@ class EliminarDominioJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(protected Dominio $dominio) {}
+    protected $dominio;
+    protected $fullDomain;
+    protected $path;
+    protected $fullPath;
+    protected $basePath;
+    protected $repo;
+
+    public function __construct(Dominio $dominio)
+    {
+        $this->dominio = $dominio;
+        $this->fullDomain = $dominio->full_dominio;
+        $this->repo = $dominio->repositorio;
+        $this->basePath = rtrim($dominio->path, '/') . "/" . $this->fullDomain;
+        $this->fullPath = $this->dominio->full_path;
+    }
 
     public function handle(): void
     {
-        $domain = $this->dominio->dominio; // ej: mi-tienda.saeta.app
-        $path = $this->dominio->path;      // ej: /var/www/html/mi-tienda
-        $fullDomain = $this->dominio->subdominio . '.'. $this->dominio->dominio;
-        $fullPath = '/var/www/html/'.$fullDomain;
+        $fullDomain = $this->fullDomain;
+        $path = $this->basePath;
+        $fullPath = $this->fullPath;
+
 
         Log::info("Iniciando eliminación completa del dominio: {$fullDomain} con el path {$path}");
 
@@ -53,9 +67,9 @@ class EliminarDominioJob implements ShouldQueue
             // 5. Eliminar de la base de datos
            $this->dominio->delete();
 
-            Log::info("Dominio {$domain} eliminado exitosamente del VPS.");
+            Log::info("Dominio {$fullDomain} eliminado exitosamente del VPS.");
         } catch (\Throwable $th) {
-            Log::error("Error crítico eliminando dominio {$domain}: " . $th->getMessage());
+            Log::error("Error crítico eliminando dominio {$fullDomain}: " . $th->getMessage());
             throw $th;
         }
     }

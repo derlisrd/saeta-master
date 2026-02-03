@@ -25,12 +25,10 @@ class DesplegarProyectoJob implements ShouldQueue
     public function __construct(Dominio $dominio)
     {
         $this->dominio = $dominio;
-        // Definimos rutas base desde el inicio
-        //$this->fullDomain = $dominio->subdominio? "{$dominio->subdominio}.{$dominio->dominio}" : $dominio->dominio;
         $this->fullDomain = $dominio->full_dominio;
         $this->repo = $dominio->repositorio;
         $this->basePath = rtrim($dominio->path, '/') . "/" . $this->fullDomain;
-        $this->fullPath = $this->dominio->full_path; // "{$this->basePath}/" . ltrim($dominio->path, '/');
+        $this->fullPath = $this->dominio->full_path; 
     }
 
     public function handle()
