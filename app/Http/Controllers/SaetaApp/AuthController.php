@@ -89,7 +89,7 @@ class AuthController extends Controller
 
             $user = User::where('email', $username)
                 ->orWhere('username', $username)
-                ->select('id','name')
+                ->select('id','name','email')
                 ->first();
 
             if (!$user) {
@@ -130,10 +130,10 @@ class AuthController extends Controller
                     'success' => true,
                     'results' => [
                         'user' => $user,
-                        'instancias'=>$dominios,
                         'token' => $token,
                         'type_token' => 'Bearer ',
                         'refresh_token' => $refreshToken,
+                        'instancias'=>$dominios
                     ]
                 ]);
             }
