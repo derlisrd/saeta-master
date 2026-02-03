@@ -119,7 +119,7 @@ class DesplegarProyectoJob implements ShouldQueue
         foreach ($comandosDB as $c) {
             $cmds[] = "cd {$this->fullPath} && {$c->comando}";
         }
-        $cmds[] = "cd {$this->path} && git remote set-url origin {$repo->url_git}";
+        $cmds[] = "cd {$this->fullPath} && git remote set-url origin {$repo->url_git}";
 
         return $cmds;
     }
