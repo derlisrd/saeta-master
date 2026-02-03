@@ -123,7 +123,7 @@ class DominioController extends Controller
             DesplegarProyectoJob::dispatch($dominio);
 
             return redirect()->route('dominios-lista')
-                ->with('success', "Dominio registrado. El despliegue de la infraestructura ha comenzado.");
+                ->with('success', "Dominio registrado. El despliegue ha comenzado en 2do plano.");
         } 
 
         // Si falla Cloudflare, registramos el error pero el dominio ya quedó en nuestra DB
