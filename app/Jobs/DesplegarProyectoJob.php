@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\{DbVms, Dominio, ServerTemplate};
+use App\Models\{Comando, DbVms, Dominio, ServerTemplate};
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -108,65 +108,25 @@ class DesplegarProyectoJob implements ShouldQueue
     {
         $repo = $this->repo;
         $envEncoded = base64_encode($this->getEnvContent());
-
         $rawUrl = trim($repo->url_git);
         $token = config('services.github.token');
-
         $secureUrl = str_replace('https://', "https://x-access-token:{$token}@", $rawUrl);
-
         $cmds = [
             "git clone -b {$repo->branch} '{$secureUrl}' {$this->fullPath}",
             "echo '{$envEncoded}' | base64 -d > {$this->fullPath}/.env",
-            //"cd {$this->fullPath} && composer install --no-dev --optimize-autoloader",
-            //"cd {$this->fullPath} && php artisan key:generate && php artisan jwt:secret --force",
-            //"cd {$this->fullPath} && php artisan migrate --seed --force",
         ];
-
-        $fases = [
-            'install' => $repo->install_commands,
-            'build'   => $repo->build_commands,
-            'setup'   => $repo->setup_commands,
-        ];
-
-        foreach ($fases as $fase => $contenido) {
-            if (!empty($contenido)) {
-                // Convertimos el texto en un array de líneas
-                $lineas = explode("\n", str_replace("\r", "", $contenido));
-                foreach ($lineas as $linea) {
-                    $linea = trim($linea);
-                    if ($linea) {
-                        // Cada comando se ejecuta dentro de la carpeta del proyecto
-                        $cmds[] = "cd {$this->fullPath} && {$linea}";
-                    }
-                }
-            }
+        $comandosDB = Comando::where('repositorio_id', $repo->id)
+            ->orderBy('orden', 'asc')
+            ->get();
+        foreach ($comandosDB as $c) {
+            $cmds[] = "cd {$this->fullPath} && {$c->comando}";
         }
-
-        
-
         $cmds[] = "cd {$this->path} && git remote set-url origin {$repo->url_git}";
 
         return $cmds;
     }
 
-    private function serverConfigurationCommandsAntiguo(): array
-    {
-        $nginxCmd = "sudo bash -c \"cat << 'EOF' > /etc/nginx/sites-available/{$this->fullDomain}\n"
-            . $this->getNginxConfig() .
-            "\nEOF\n\"";
 
-
-        return [
-            $nginxCmd,
-            "sudo ln -s /etc/nginx/sites-available/{$this->fullDomain} /etc/nginx/sites-enabled/",
-            "sudo nginx -t && sudo systemctl reload nginx", // Validar antes de Certbot
-            "sudo certbot --nginx -d " . $this->fullDomain . " --non-interactive --agree-tos -m " . $this->dominio->user->email . " --redirect",
-
-            "sudo systemctl reload nginx",
-            "sudo chown -R " . $this->dominio->vm->usuario . ":www-data {$this->fullPath}",
-            "sudo chmod -R 775 {$this->fullPath}/storage {$this->fullPath}/bootstrap/cache",
-        ];
-    }
 
     private function serverConfigurationCommands(): array
     {
@@ -240,7 +200,7 @@ class DesplegarProyectoJob implements ShouldQueue
         $env .= "APP_ENV=production\n";
         $env .= "APP_KEY=\n";
         $env .= "APP_DEBUG=false\n";
-        $env .= "APP_URL=https://{$this->fullDomain}\n\n";
+        $env .= "APP_URL={$this->fullDomain}\n\n";
 
         $env .= "DB_CONNECTION={$d->db_connection}\n";
         $env .= "DB_HOST={$d->db_host}\n";
@@ -257,51 +217,6 @@ class DesplegarProyectoJob implements ShouldQueue
         return $env;
     }
 
-    private function getNginxConfig(): string
-    {
-        $domain = $this->fullDomain;
-        //$basePath = $this->basePath;
-        //$publicPath = $this->path . '/public';
-        $fullPath = $this->fullPath;
-        $outputPath =  $this->fullPath .'/'. $this->repo->output_path;
-
-        return "
-server {
-    listen 80;
-    listen [::]:80;
-    server_name {$domain};
-    root {$outputPath};
-
-    add_header X-Frame-Options ".'"SAMEORIGIN"'. ";
-    add_header X-Content-Type-Options ".'"nosniff"'.";
-
-    index index.php;
-    charset utf-8;
-
-    error_page 404 /index.php;
-    
-    location / {
-        try_files \$uri \$uri/ /index.php?\$query_string;
-    }
-
-    location ~ ^/index\\.php(/|$) {
-        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
-        ffastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
-        include fastcgi_params;
-        fastcgi_hide_header X-Powered-By;
-    }
-
-
-    location ~ \\.php$ {
-        include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
-        include fastcgi_params;
-    }
-}";
-    }
-    /** * HELPERS 
-     */
 
     private function getSshConnection(): SSH2
     {

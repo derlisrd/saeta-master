@@ -91,7 +91,7 @@ class RepositorioController extends Controller
             ]);
 
             // 2. Creamos el registro con stack_id
-            Repositorio::create([
+            $repo = Repositorio::create([
                 'nombre'           => $request->nombre,
                 'url_git'          => $request->clone_url,
                 'branch'           => $request->branch,
@@ -103,6 +103,33 @@ class RepositorioController extends Controller
                 // Si viene vacío, ponemos 'public' por defecto
                 'output_path'      => $request->output_path ?? 'public',
             ]);
+
+            $orden = 0;
+            $fases = [
+                'Instalación'   => $request->install_commands,
+                'Compilación'   => $request->build_commands,
+                'Configuración' => $request->setup_commands,
+            ];
+
+            foreach ($fases as $descripcion => $contenido) {
+                if (!empty($contenido)) {
+                    // Limpiar retornos de carro y separar por saltos de línea
+                    $lineas = explode("\n", str_replace("\r", "", $contenido));
+
+                    foreach ($lineas as $linea) {
+                        $cmdText = trim($linea);
+                        if (!empty($cmdText)) {
+                            \App\Models\Comando::create([
+                                'repositorio_id' => $repo->id,
+                                'orden'          => $orden++,
+                                'comando'        => $cmdText,
+                                'descripcion'    => "Fase de $descripcion",
+                                'ignore_error'   => false, // Por defecto no ignorar
+                            ]);
+                        }
+                    }
+                }
+            }
 
             return redirect()->route('repositorios-lista')->with('success', 'Repositorio registrado.');
         } catch (\Throwable $th) {
