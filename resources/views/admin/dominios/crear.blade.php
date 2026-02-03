@@ -112,7 +112,7 @@
 
 
                     {{-- Nombre y Subdominio --}}
-                    <div class="flex flex-col gap-2">
+                    <div class="flex flex-col md:col-span-2 gap-2">
                         <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Nombre Proyecto</label>
                         <input name="nombre" id="input-nombre" value="{{ old('nombre') }}" placeholder="Nombre"
                             class="transition-all duration-200 bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none focus:border-sky-500" />
@@ -125,7 +125,7 @@
                     </div>
 
                     {{-- Input: Path (Ruta en el Servidor) --}}
-                    <div class="flex flex-col gap-2">
+                    <div class="flex flex-col gap-2 md:col-span-3">
                         <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Carpeta de
                             instalacion</label>
                         <div class="flex flex-col gap-2">
