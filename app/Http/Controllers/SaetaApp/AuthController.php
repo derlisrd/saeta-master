@@ -113,7 +113,7 @@ class AuthController extends Controller
                     'user_id' => $user->id
                 ])->fromUser($user);
 
-                $dominios = [];
+                $dominios = Dominio::where('user_id', $user->id)->get();
 
                 return response()->json([
                     'success' => true,
