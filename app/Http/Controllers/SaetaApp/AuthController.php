@@ -131,8 +131,8 @@ class AuthController extends Controller
                     'results' => [
                         'user' => $user,
                         'instancias'=>$dominios,
-                        'tokenRaw' => $token,
-                        'token' => 'Bearer ' . $token,
+                        'token' => $token,
+                        'type_token' => 'Bearer ',
                         'refresh_token' => $refreshToken,
                     ]
                 ]);
