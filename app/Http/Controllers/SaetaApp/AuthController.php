@@ -115,14 +115,16 @@ class AuthController extends Controller
                 ])->fromUser($user);
 
                 $dominios = Dominio::where('user_id', $user->id)
-                ->select('full_dominio','id','api_key','protocol')
+                ->select('full_dominio','id','api_key','protocol', 'nombre', 'vencimiento')
                 ->get()
-                ->map(function ($dominio) {
+                ->map(function ($item) {
                         return [
-                            'id' => $dominio->id,
-                            'api_key' => $dominio->api_key,
-                            'full_dominio' => $dominio->full_dominio,
-                            'url' => $dominio->protocol . $dominio->full_dominio
+                            'id' => $item->id,
+                            'api_key' => $item->api_key,
+                            'full_dominio' => $item->full_dominio,
+                            'url' => $item->protocol . $item->full_dominio,
+                            'nombre'=>$item->nombre,
+                            'vencimiento'=>$item->vencimiento
                     ];
                 });
 
