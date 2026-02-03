@@ -142,9 +142,9 @@ class DesplegarProyectoJob implements ShouldQueue
 
             $cmds = [
                 "sudo bash -c \"cat << 'EOF' > $availablePath
-                $configContent
-                EOF
-                \"",
+$configContent
+EOF
+\"",
                 "sudo ln -sf $availablePath $enabledPath",
                 "sudo nginx -t && sudo systemctl reload nginx",
             ];
@@ -153,9 +153,9 @@ class DesplegarProyectoJob implements ShouldQueue
             $confFile = "/etc/apache2/sites-available/{$this->fullDomain}.conf";
             $cmds = [
                 "sudo bash -c \"cat << 'EOF' > $confFile
-                $configContent
-                EOF
-                \"",
+$configContent
+EOF
+\"",
                 "sudo a2ensite {$this->fullDomain}.conf",
                 "sudo systemctl reload apache2",
             ];
