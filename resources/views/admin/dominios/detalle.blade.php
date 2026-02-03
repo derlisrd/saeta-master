@@ -47,7 +47,13 @@
                         <div class="flex flex-col">
                             <span class="text-zinc-600 text-[10px] uppercase font-bold">Ruta en Disco</span>
                             <span class="text-zinc-300 text-xs font-mono bg-black/30 p-2 rounded-lg mt-1 border border-zinc-800">
-                                /var/www/html/{{ $dominio->subdominio }}.{{ $dominio->dominio }}/{{ $dominio->path }}
+                                {{ $dominio->full_path }}
+                            </span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-zinc-600 text-[10px] uppercase font-bold">Dominio</span>
+                            <span class="text-zinc-300 text-xs font-mono bg-black/30 p-2 rounded-lg mt-1 border border-zinc-800">
+                               {{$dominio->protocol}} {{ $dominio->full_dominio }}
                             </span>
                         </div>
                     </div>
