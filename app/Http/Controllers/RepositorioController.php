@@ -174,52 +174,58 @@ class RepositorioController extends Controller
 
     public function update(Request $request, $id)
     {
-        $repo = Repositorio::findOrFail($id);
+        try{
 
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'branch' => 'required|string',
-        ]);
+            $repo = Repositorio::findOrFail($id);
 
-        // 1. Actualizamos datos básicos del repo
-        $repo->update($request->only([
-            'nombre',
-            'branch',
-            'stack_id',
-            'tipo_stack',
-            'output_path',
-            'install_commands',
-            'build_commands',
-            'setup_commands'
-        ]));
+            $request->validate([
+                'nombre' => 'required|string|max:255',
+                'branch' => 'required|string',
+            ]);
 
-        // 2. Sincronizamos la tabla 'comandos'
-        // Lo más seguro es borrar los anteriores y re-insertar para mantener el orden limpio
-        $repo->comandos()->delete();
+            // 1. Actualizamos datos básicos del repo
+            $repo->update($request->only([
+                'nombre',
+                'branch',
+                'stack_id',
+                'tipo_stack',
+                'output_path',
+                'install_commands',
+                'build_commands',
+                'setup_commands'
+            ]));
 
-        $orden = 0;
-        $fases = [
-            'Instalación'   => $request->install_commands,
-            'Compilación'   => $request->build_commands,
-            'Configuración' => $request->setup_commands,
-        ];
+            // 2. Sincronizamos la tabla 'comandos'
+            // Lo más seguro es borrar los anteriores y re-insertar para mantener el orden limpio
+            $repo->comandos()->delete();
 
-        foreach ($fases as $desc => $contenido) {
-            if (!empty($contenido)) {
-                $lineas = explode("\n", str_replace("\r", "", $contenido));
-                foreach ($lineas as $linea) {
-                    $cmdText = trim($linea);
-                    if ($cmdText) {
-                        $repo->comandos()->create([
-                            'orden' => $orden++,
-                            'comando' => $cmdText,
-                            'descripcion' => "Fase de $desc",
-                        ]);
+            $orden = 0;
+            $fases = [
+                'Instalación'   => $request->install_commands,
+                'Compilación'   => $request->build_commands,
+                'Configuración' => $request->setup_commands,
+            ];
+
+            foreach ($fases as $desc => $contenido) {
+                if (!empty($contenido)) {
+                    $lineas = explode("\n", str_replace("\r", "", $contenido));
+                    foreach ($lineas as $linea) {
+                        $cmdText = trim($linea);
+                        if ($cmdText) {
+                            $repo->comandos()->create([
+                                'orden' => $orden++,
+                                'comando' => $cmdText,
+                                'descripcion' => "Fase de $desc",
+                            ]);
+                        }
                     }
                 }
             }
-        }
 
-        return redirect()->route('repositorios-lista')->with('success', 'Repositorio y pipeline actualizados.');
+            return redirect()->route('repositorios-lista')->with('success', 'Repositorio y pipeline actualizados.');
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Ocurrió un error inesperado al intentar eliminar el registro.');
+        }
     }
 }

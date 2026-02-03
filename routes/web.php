@@ -43,7 +43,7 @@ Route::group(['middleware' => ['auth:web']], function () {
 
 
         Route::get('/repositorios/{id}', [RepositorioController::class, 'editar'])->name('repositorios-editar');
-        Route::put('/repositorios/{id}', [RepositorioController::class, 'editar'])->name('repositorios-update');
+        Route::put('/repositorios/{id}', [RepositorioController::class, 'update'])->name('repositorios-update');
         Route::delete('/repositorios/{id}/eliminar', [RepositorioController::class, 'destroy'])->name('repositorios-destroy');
         
         Route::get('/github/branches', [RepositorioController::class, 'getBranches'])->name('github-branches');
