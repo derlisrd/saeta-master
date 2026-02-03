@@ -44,7 +44,7 @@
                 {{-- Campo oculto para guardar la URL de clonación real --}}
                 <input type="hidden" name="clone_url" id="clone-url-input">
 
-                
+
 
                 {{-- Selector de Stack Base --}}
                 <div>
@@ -68,7 +68,8 @@
 
                 <div>
                     <label class="text-zinc-500 text-[10px] font-bold uppercase ml-1 mb-2 block">Tipo stack</label>
-                    <select name="stack_id" id="stack-select" required onchange="updateDefaultCommands(this)"
+                    {{-- CAMBIADO: name="tipo_stack" e ID único --}}
+                    <select name="tipo_stack" id="tipo-stack-select" required
                         class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none focus:ring-2 focus:ring-sky-500/50">
                         <option value="" disabled selected>Seleccione tipo de stack...</option>
                         @foreach ($tipos_stacks as $stack)

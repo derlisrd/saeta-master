@@ -23,6 +23,8 @@ return new class extends Migration
 
             $table->text('descripcion')->nullable();
 
+            $table->string('tipo_stack')->nullable();
+
             // PIPELINE DE DESPLIEGUE (Comandos multilínea)
             $table->text('install_commands')->nullable();
             $table->text('build_commands')->nullable();

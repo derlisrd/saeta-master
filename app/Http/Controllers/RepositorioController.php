@@ -7,6 +7,7 @@ use App\Models\Stack;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class RepositorioController extends Controller
 {
@@ -81,28 +82,33 @@ class RepositorioController extends Controller
     public function store(Request $request)
     {
         // 1. Cambiamos la validación
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'clone_url' => 'required|url',
-            'branch' => 'required|string',
-            'stack_id' => 'required|exists:stacks,id', // Validamos que el stack exista
-        ]);
+        try {
+            $request->validate([
+                'nombre' => 'required|string|max:255',
+                'clone_url' => 'required|url',
+                'branch' => 'required|string',
+                'stack_id' => 'required|exists:stacks,id', // Validamos que el stack exista
+            ]);
 
-        // 2. Creamos el registro con stack_id
-        Repositorio::create([
-            'nombre'           => $request->nombre,
-            'url_git'          => $request->clone_url,
-            'branch'           => $request->branch,
-            'stack_id'         => $request->stack_id,
-            'install_commands' => $request->install_commands,
-            'build_commands'   => $request->build_commands,
-            'setup_commands'   => $request->setup_commands,
-            'tipo_stack'     => $request->tipo_stack,
-            // Si viene vacío, ponemos 'public' por defecto
-            'output_path'      => $request->output_path ?? 'public',
-        ]);
+            // 2. Creamos el registro con stack_id
+            Repositorio::create([
+                'nombre'           => $request->nombre,
+                'url_git'          => $request->clone_url,
+                'branch'           => $request->branch,
+                'stack_id'         => $request->stack_id,
+                'install_commands' => $request->install_commands,
+                'build_commands'   => $request->build_commands,
+                'setup_commands'   => $request->setup_commands,
+                'tipo_stack'     => $request->tipo_stack,
+                // Si viene vacío, ponemos 'public' por defecto
+                'output_path'      => $request->output_path ?? 'public',
+            ]);
 
-        return redirect()->route('repositorios-lista')->with('success', 'Repositorio registrado.');
+            return redirect()->route('repositorios-lista')->with('success', 'Repositorio registrado.');
+        } catch (\Throwable $th) {
+            Log::error($th);
+            //throw $th;
+        }
     }
     
     public function destroy($id)

@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('server_templates', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('stack_id')->unsigned()->nullable();
             $table->string('nombre'); // Ej: Laravel Premium, React SPA, Static HTML
             $table->string('web_server')->default('nginx'); //['nginx', 'apache']
+            $table->string('stack_slug')->nullable();
             $table->text('config_content'); // Aquí va el código con {{dominio}} y {{path}}
-            $table->text('description')->nullable();
+            $table->text('descripcion')->nullable();
+            $table->foreign('stack_id')->references('id')->on('stacks')->onDelete('set null');
             $table->timestamps();
         });
     }

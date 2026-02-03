@@ -141,7 +141,7 @@ class DesplegarProyectoJob implements ShouldQueue
         return $cmds;
     }
 
-    private function serverConfigurationCommands(): array
+    private function serverConfigurationCommandsAntiguo(): array
     {
         $nginxCmd = "sudo bash -c \"cat << 'EOF' > /etc/nginx/sites-available/{$this->fullDomain}\n"
             . $this->getNginxConfig() .
@@ -160,8 +160,69 @@ class DesplegarProyectoJob implements ShouldQueue
         ];
     }
 
-    /** * GENERADORES DE CONTENIDO 
-     */
+    private function serverConfigurationCommands(): array
+    {
+        $vm = $this->dominio->vm;
+        $webServer = $vm->web_server_type; // 'nginx' o 'apache'
+
+        // Obtenemos el contenido de la plantilla dinámica
+        $configContent = $this->getDynamicServerConfig();
+
+        if ($webServer === 'nginx') {
+            $availablePath = "/etc/nginx/sites-available/{$this->fullDomain}";
+            $enabledPath = "/etc/nginx/sites-enabled/{$this->fullDomain}";
+
+            $cmds = [
+                "sudo bash -c \"echo '$configContent' > $availablePath\"",
+                "sudo ln -sf $availablePath $enabledPath",
+                "sudo nginx -t && sudo systemctl reload nginx",
+            ];
+        } else {
+            // Lógica para Apache
+            $confFile = "/etc/apache2/sites-available/{$this->fullDomain}.conf";
+            $cmds = [
+                "sudo bash -c \"echo '$configContent' > $confFile\"",
+                "sudo a2ensite {$this->fullDomain}.conf",
+                "sudo systemctl reload apache2",
+            ];
+        }
+
+        // SSL y Permisos (Comunes o adaptados)
+        $cmds[] = "sudo certbot --" . ($webServer === 'apache' ? 'apache' : 'nginx') . " -d {$this->fullDomain} --non-interactive --agree-tos -m {$this->dominio->user->email} --redirect";
+        $cmds[] = "sudo chown -R {$vm->usuario}:www-data {$this->fullPath}";
+        $cmds[] = "sudo chmod -R 775 {$this->fullPath}/storage {$this->fullPath}/bootstrap/cache";
+
+        return $cmds;
+    }
+
+    private function getDynamicServerConfig(): string
+    {
+        $vm = $this->dominio->vm;
+        $repo = $this->dominio->repositorio;
+
+        // Buscamos la plantilla que coincida con el motor de la VM y el Stack del Repo
+        $template = ServerTemplate::where('web_server', $vm->web_server_type)
+            ->where('stack_id', $repo->stack_id)
+            ->first();
+
+        if (!$template) {
+            throw new \Exception("No existe una plantilla para {$vm->web_server_type} con el stack {$repo->stack->nombre}");
+        }
+
+        $outputPath = $this->fullPath . '/' . ltrim($repo->output_path, '/');
+
+        // Mapeo de variables para la plantilla
+        $vars = [
+            '{{dominio}}'      => $this->fullDomain,
+            '{{path}}'         => $this->fullPath,
+            '{{output_path}}'  => $outputPath,
+            '{{php_version}}'  => $vm->php_version,
+        ];
+
+        return str_replace(array_keys($vars), array_values($vars), $template->config_content);
+    }
+
+
 
     private function getEnvContent(): string
     {
