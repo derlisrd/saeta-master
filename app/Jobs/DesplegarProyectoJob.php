@@ -30,7 +30,7 @@ class DesplegarProyectoJob implements ShouldQueue
         $this->fullUrl = $dominio->protocol . $dominio->full_dominio;
         $this->repo = $dominio->repositorio;
         $this->basePath = rtrim($dominio->path, '/') . "/" . $this->fullDomain;
-        $this->fullPath = $this->dominio->full_path; 
+        $this->fullPath = $this->dominio->full_path;
     }
 
     public function handle()
@@ -67,7 +67,7 @@ class DesplegarProyectoJob implements ShouldQueue
                 if ($exitCode !== 0) {
                     Log::error("Command failed: $cmd", ['output' => $output, 'code' => $exitCode]);
                     throw new \Exception("Fallo comando: $cmd");
-                } 
+                }
             }
 
             $this->finalizeDeployment();
@@ -141,7 +141,10 @@ class DesplegarProyectoJob implements ShouldQueue
             $enabledPath = "/etc/nginx/sites-enabled/{$this->fullDomain}";
 
             $cmds = [
-                "sudo bash -c \"echo '$configContent' > $availablePath\"",
+                "sudo bash -c \"cat << 'EOF' > $availablePath
+                $configContent
+                EOF
+                \"",
                 "sudo ln -sf $availablePath $enabledPath",
                 "sudo nginx -t && sudo systemctl reload nginx",
             ];
@@ -149,7 +152,10 @@ class DesplegarProyectoJob implements ShouldQueue
             // Lógica para Apache
             $confFile = "/etc/apache2/sites-available/{$this->fullDomain}.conf";
             $cmds = [
-                "sudo bash -c \"echo '$configContent' > $confFile\"",
+                "sudo bash -c \"cat << 'EOF' > $confFile
+                $configContent
+                EOF
+                \"",
                 "sudo a2ensite {$this->fullDomain}.conf",
                 "sudo systemctl reload apache2",
             ];
@@ -231,14 +237,14 @@ class DesplegarProyectoJob implements ShouldQueue
     private function finalizeDeployment()
     {
         DbVms::create([
-                'dominio_id' => $this->dominio->id,
-                'db_host' => $this->dominio->db_host,
-                'db_port' => $this->dominio->db_port,
-                'db_name' => $this->dominio->db_name,
-                'db_user' => $this->dominio->db_user,
-                'db_pass' => $this->dominio->db_pass,
-                'db_connection' => $this->dominio->db_connection
-            ]);
+            'dominio_id' => $this->dominio->id,
+            'db_host' => $this->dominio->db_host,
+            'db_port' => $this->dominio->db_port,
+            'db_name' => $this->dominio->db_name,
+            'db_user' => $this->dominio->db_user,
+            'db_pass' => $this->dominio->db_pass,
+            'db_connection' => $this->dominio->db_connection
+        ]);
 
         $this->dominio->update(['desplegado' => 1]);
         Log::info("✅ Proyecto listo: {$this->fullDomain}");
@@ -260,5 +266,4 @@ class DesplegarProyectoJob implements ShouldQueue
 
         return str_replace($busqueda, $reemplazo, $config);
     }
-
 }
