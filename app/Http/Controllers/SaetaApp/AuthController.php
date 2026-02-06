@@ -133,9 +133,6 @@ class AuthController extends Controller
                     'success' => true,
                     'results' => [
                         'user' => $user,
-                        'token' => $token,
-                        'type_token' => 'Bearer ',
-                        'refresh_token' => $refreshToken,
                         'instancias'=>$dominios
                     ]
                 ]);
