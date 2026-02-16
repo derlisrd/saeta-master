@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\DesplegarProyectoJob;
 use App\Jobs\EliminarDominioJob;
 use App\Models\Dominio;
+use App\Models\Negocio;
 use App\Models\Repositorio;
 use App\Models\User;
 use App\Models\VM;
@@ -19,11 +20,31 @@ class DominioController extends Controller
         return view('admin.dominios.detalle', compact('dominio'));
     }
 
+    public function formularioDesdeNegocio($id){
+
+        $negocio = Negocio::find($id);
+        $cliente = $negocio->user;
+
+        return view('admin.dominios.crear', [
+            'zonas'    => Zone::all(),
+            'nombre'   => $negocio->nombre,
+            'env' =>  [
+                'PASSWORD_SEEDED' => $negocio->temporal,
+                'EMAIL_SEEDED' => $cliente->email,
+            ],
+            'clientes' => [$cliente],
+            'vms'      => VM::orderBy('nombre')->get(),
+            'repositorios' => Repositorio::orderBy('nombre')->get()
+        ]);
+        
+    }
     public function formulario(){
 
         return view('admin.dominios.crear', [
             'zonas'    => Zone::all(),
+            'nombre' => null,
             'clientes' => User::all(),
+            'env' => null,
             'vms'      => VM::orderBy('nombre')->get(),
             'repositorios' => Repositorio::orderBy('nombre')->get()
         ]);

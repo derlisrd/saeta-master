@@ -25,6 +25,8 @@ Route::group(['middleware' => ['auth:web']], function () {
         Route::get('/dominios',[DominioController::class,'lista'])->name('dominios-lista');
         Route::get('/dominios/crear',[DominioController::class,'formulario'])->name('dominios-formulario');
         Route::post('/dominios/crear',[DominioController::class, 'store'])->name('dominios-store');
+        
+        Route::get('/dominios/crear-desde-negocio/{id}',[DominioController::class,'formularioDesdeNegocio'])->name('dominios-formulario-desde-negocio');
 
         Route::get('/dominios/{id}', [DominioController::class, 'find'])->name('dominios-detalle');
         Route::delete('/dominios/{id}', [DominioController::class, 'destroy'])->name('dominios-destroy');
@@ -50,6 +52,7 @@ Route::group(['middleware' => ['auth:web']], function () {
 
         Route::get('/clientes',[ClientesController::class,'lista'])->name('clientes-lista');
         Route::get('/clientes/negocios',[ClientesController::class,'negociosLista'])->name('clientes-negocios');
+        Route::get('/clientes/negocios/activar/{id}',[ClientesController::class,'activarCliente'])->name('clientes-negocios-activar');
         Route::get('/clientes/crear',[ClientesController::class, 'formulario'])->name('clientes-formulario');
         Route::post('/clientes/crear',[ClientesController::class, 'store'])->name('clientes-store');
         Route::get('/clientes/{id}',[ClientesController::class, 'find'])->name('clientes-detalle');

@@ -9,9 +9,21 @@ use Illuminate\Support\Facades\Hash;
 
 class ClientesController extends Controller
 {
+    public function activarCliente($id)
+    {
+        $negocio = Negocio::findOrFail($id);
+        $negocio->activo = true;
+        $negocio->save();
+
+        return back()->with('success', 'Cliente activado exitosamente.');
+    }
     public function negociosLista()
     {
         $negocios = Negocio::with('user')->get();
+        $negocios = $negocios->map(function ($negocio) {
+            $negocio->dominios_count = $negocio->user->dominios()->count();
+            return $negocio;
+        });
         return view('admin.clientes.negocios', compact('negocios'));
     }
     public function lista()

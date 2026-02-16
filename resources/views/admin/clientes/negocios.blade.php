@@ -26,11 +26,14 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-zinc-800/50">
-                        <th class="px-6 py-4 text-zinc-400 text-xs font-bold uppercase tracking-wider">Nombre de negocio</th>
+                        <th class="px-6 py-4 text-zinc-400 text-xs font-bold uppercase tracking-wider">Nombre de negocio
+                        </th>
                         <th class="px-6 py-4 text-zinc-400 text-xs font-bold uppercase tracking-wider">Correo</th>
                         <th class="px-6 py-4 text-zinc-400 text-xs font-bold uppercase tracking-wider">Activo</th>
+                        <th class="px-6 py-4 text-zinc-400 text-xs font-bold uppercase tracking-wider">Dominios</th>
                         <th class="px-6 py-4 text-zinc-400 text-xs font-bold uppercase tracking-wider">Creado</th>
-                        <th class="px-6 py-4 text-zinc-400 text-xs font-bold uppercase tracking-wider text-right">Acciones</th>
+                        <th class="px-6 py-4 text-zinc-400 text-xs font-bold uppercase tracking-wider text-right">Acciones
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-zinc-800">
@@ -38,7 +41,7 @@
                         <tr class="hover:bg-zinc-800/30 transition-colors group">
                             <td class="px-6 py-4">
                                 <div class="flex items-center">
-                                    
+
                                     <div>
                                         <a href="{{ route('clientes-detalle', $negocio->id) }}"
                                             class="text-sm font-medium text-white hover:text-sky-400 transition-colors">
@@ -54,6 +57,12 @@
                                     {{ $negocio->user->email ?? '---' }}
                                 </span>
                             </td>
+                            <td class="px-6 py-4">
+                               <span
+                                    class="px-3 py-1 rounded-full text-xs font-bold {{ $negocio->dominios_count > 0 ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-zinc-800 text-zinc-500 border border-zinc-700' }}">
+                                    {{ $negocio->dominios_count }}
+                                </span>
+                            </td>
                             <td class="px-6 py-4 text-xs text-zinc-400 italic">
                                 {{ $negocio->activo ? 'Sí' : 'No' }}
                             </td>
@@ -61,13 +70,21 @@
                                 {{ $negocio->created_at->format('d M, Y') }}
                             </td>
                             <td class="px-6 py-4 text-right space-x-2">
-                                <button class="p-1 text-zinc-400 hover:text-white transition-colors border border-zinc-300 rounded" title="Ver Perfil">
-                                    ACTIVAR
-                                </button>
+                                @if ($negocio->activo === 0)
+                                    <a href="{{ route('clientes-negocios-activar', $negocio->id) }}"
+                                        class="p-1 text-zinc-400 hover:text-white transition-colors border border-zinc-300 rounded">
+                                        ACTIVAR
+                                    </a>
+                                @else
+                                    <a href="{{ route('dominios-formulario-desde-negocio', $negocio->id) }}"
+                                        class="p-1 text-zinc-400 hover:text-white transition-colors border border-zinc-300 rounded">
+                                        CREAR DOMINIO
+                                    </a>
+                                @endif
+                                
                             </td>
                         </tr>
                     @empty
-                        
                     @endforelse
                 </tbody>
             </table>

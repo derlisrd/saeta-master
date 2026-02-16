@@ -113,8 +113,9 @@
 
                     {{-- Nombre y Subdominio --}}
                     <div class="flex flex-col md:col-span-2 gap-2">
-                        <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Nombre Proyecto</label>
-                        <input name="nombre" id="input-nombre" value="{{ old('nombre') }}" placeholder="Nombre"
+                        <label class="text-zinc-400 text-xs font-bold uppercase tracking-wider ml-1">Nombre de
+                            Proyecto</label>
+                        <input name="nombre" id="input-nombre" value="{{ $nombre }}" placeholder="Nombre"
                             class="transition-all duration-200 bg-zinc-800 border border-zinc-700 rounded-xl p-3 text-white outline-none focus:border-sky-500" />
                     </div>
                     <div class="flex flex-col gap-2">
@@ -473,23 +474,8 @@
             if (this.value === 'sqlite') portInput.value = '';
         });
 
-        function addEnvRow() {
-            const container = document.getElementById('env-container');
-            const index = container.children.length;
-            const html = `
-            <div class="flex gap-2 animate-fadeIn" id="env-row-${index}">
-                <input name="custom_envs[${index}][key]" placeholder="KEY (Ej: MAIL_HOST)" class="w-1/3 bg-zinc-800 border border-zinc-700 rounded-xl p-2 text-white text-sm outline-none focus:border-sky-500" />
-                <input name="custom_envs[${index}][value]" placeholder="VALUE" class="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl p-2 text-white text-sm outline-none focus:border-sky-500" />
-                <button type="button" onclick="document.getElementById('env-row-${index}').remove()" class="text-red-500 hover:bg-red-500/10 p-2 rounded-xl transition-all">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-        `;
-            container.insertAdjacentHTML('beforeend', html);
-        }
-    </script>
 
-    <script>
+
         function autoGeneratePath() {
             const subdominio = document.getElementById('input-subdominio').value.trim();
             const zoneSelect = document.querySelector('select[name="zone_id"]');
@@ -518,5 +504,53 @@
                 text: pathInput.value
             });
         }
+
+
+        function addEnvRow(key = '', value = '') {
+            const container = document.getElementById('env-container');
+            const index = container.children.length;
+            const html = `
+    <div class="flex gap-2 animate-fadeIn" id="env-row-${index}">
+        <input name="custom_envs[${index}][key]" 
+               value="${key}" 
+               placeholder="KEY (Ej: MAIL_HOST)" 
+               class="w-1/3 bg-zinc-800 border border-zinc-700 rounded-xl p-2 text-white text-sm outline-none focus:border-sky-500" />
+        
+        <input name="custom_envs[${index}][value]" 
+               value="${value}" 
+               placeholder="VALUE" 
+               class="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl p-2 text-white text-sm outline-none focus:border-sky-500" />
+        
+        <button type="button" onclick="document.getElementById('env-row-${index}').remove()" 
+                class="text-red-500 hover:bg-red-500/10 p-2 rounded-xl transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    </div>
+    `;
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Leemos el array 'env' enviado desde el controlador
+            const envsData = @json($env);
+
+            // Si existen variables predefinidas, las agregamos al contenedor
+            if (envsData && typeof envsData === 'object') {
+                Object.entries(envsData).forEach(([key, value]) => {
+                    // Usamos tu función addEnvRow existente
+                    // Si no la has modificado para aceptar parámetros, mira el punto 2
+                    addEnvRow(key, value);
+                });
+
+                // Opcional: Notificar al usuario
+                Toast.fire({
+                    icon: 'info',
+                    title: 'Variables precargadas',
+                    text: 'Se han importado variables desde el Negocio.'
+                });
+            }
+        });
     </script>
 @endsection
