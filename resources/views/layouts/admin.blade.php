@@ -97,6 +97,10 @@
                     </button>
                     <div id="sub-clientes"
                         class="{{ request()->routeIs('clientes-*') ? '' : 'hidden' }} pl-6 space-y-1">
+                        <a href="{{ route('clientes-negocios') }}"
+                            class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('clientes-negocios') ? $active : $inactive }}">
+                            Negocios
+                        </a>
                         <a href="{{ route('clientes-lista') }}"
                             class="block px-4 py-2 text-sm rounded-lg {{ request()->routeIs('clientes-lista') ? $active : $inactive }}">
                             Ver clientes

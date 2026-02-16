@@ -49,6 +49,7 @@ Route::group(['middleware' => ['auth:web']], function () {
         Route::get('/github/branches', [RepositorioController::class, 'getBranches'])->name('github-branches');
 
         Route::get('/clientes',[ClientesController::class,'lista'])->name('clientes-lista');
+        Route::get('/clientes/negocios',[ClientesController::class,'negociosLista'])->name('clientes-negocios');
         Route::get('/clientes/crear',[ClientesController::class, 'formulario'])->name('clientes-formulario');
         Route::post('/clientes/crear',[ClientesController::class, 'store'])->name('clientes-store');
         Route::get('/clientes/{id}',[ClientesController::class, 'find'])->name('clientes-detalle');

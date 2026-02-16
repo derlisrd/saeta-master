@@ -2,12 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Negocio;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class ClientesController extends Controller
 {
+    public function negociosLista()
+    {
+        $negocios = Negocio::with('user')->get();
+        return view('admin.clientes.negocios', compact('negocios'));
+    }
     public function lista()
     {
         $clientes = User::withCount('dominios')->get();

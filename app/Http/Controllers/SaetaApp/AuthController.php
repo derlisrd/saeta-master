@@ -152,6 +152,10 @@ class AuthController extends Controller
                 'name' => 'required',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|min:6'
+            ],[
+                'email.unique' => 'El correo ya está registrado.',
+                'password.min' => 'La contraseña debe tener al menos 6 caracteres.',
+                'name.required' => 'El nombre es obligatorio.'
             ]);
 
             if ($validator->fails()) {
