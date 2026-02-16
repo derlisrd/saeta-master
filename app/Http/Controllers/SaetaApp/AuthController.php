@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SaetaApp;
 
 use App\Http\Controllers\Controller;
 use App\Models\Dominio;
+use App\Models\Negocio;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
@@ -12,8 +13,8 @@ use Illuminate\Support\Facades\Validator;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Cache;
-
-
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Testing\Fluent\Concerns\Has;
 
 class AuthController extends Controller
 {
@@ -109,11 +110,6 @@ class AuthController extends Controller
             $token = $auth->attempt($credentials);
 
             if ($token) {
-                $refreshToken = JWTAuth::claims([
-                    'type' => 'refresh',
-                    'user_id' => $user->id
-                ])->fromUser($user);
-
                 $dominios = Dominio::where('user_id', $user->id)
                 ->select('full_dominio','id','api_key','protocol', 'nombre', 'vencimiento')
                 ->get()
@@ -149,38 +145,66 @@ class AuthController extends Controller
         }
     }
 
-    public function me()
+    public function register(Request $request)
     {
-        return response()->json(Auth::guard('api')->user());
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|min:6'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $validator->errors()->first()
+                ], 400);
+            }
+
+            // Rate limiting por usuario
+            $userKey = 'register:' . $request->email;
+            $userAttempts = Cache::get($userKey, 0);
+
+            if ($userAttempts >= self::MAX_USER_ATTEMPTS) {
+                $lockoutUntil = Cache::get($userKey . ':lockout');
+                if ($lockoutUntil && now()->timestamp < $lockoutUntil) {
+                    $remainingTime = $lockoutUntil - now()->timestamp;
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Email temporalmente bloqueado. Intente nuevamente en " . ceil($remainingTime / 60) . " minutos.",
+                        'retry_after' => $remainingTime
+                    ], 429);
+                } else {
+                    // Reset si ya pasó el tiempo de bloqueo
+                    Cache::forget($userKey);
+                    Cache::forget($userKey . ':lockout');
+                }
+            }
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password)
+            ]);
+
+            // Crear un negocio asociado al usuario
+            $negocio = Negocio::create([
+                'nombre' => $request->name,
+                'user_id' => $user->id,
+                'temporal' => $request->password // Solo para marcarlo como temporal, no se guarda así
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Usuario registrado exitosamente. Estate atento a tu correo para más detalles."
+            ]);
+
+        } catch (\Throwable $th) {
+            Log::error($th);
+            //Errores::create(['descripcion' => 'Error en el registro. detalle: '.$th->getMessage()]);
+            throw $th;
+        }
     }
 
-    public function logout()
-    {
-        Auth::guard('api')->logout();
-
-        return response()->json([
-            'message' => 'Sesión cerrada exitosamente'
-        ]);
-    }
-
-    public function refresh()
-    {
-        /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $guard */
-        $guard = Auth::guard('api');
-
-        return $this->respondWithToken($guard->refresh());
-    }
-
-    protected function respondWithToken($token)
-    {
-        /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $guard */
-        $guard = Auth::guard('api');
-
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => $guard->factory()->getTTL() * 60,
-            'user' => Auth::guard('api')->user()
-        ]);
-    }
 }
