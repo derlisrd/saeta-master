@@ -29,8 +29,8 @@ class DominioController extends Controller
             'zonas'    => Zone::all(),
             'nombre'   => $negocio->nombre,
             'env' =>  [
-                'PASSWORD_SEEDED' => $negocio->temporal,
-                'EMAIL_SEEDED' => $cliente->email,
+                'PASSWORD_SEED' => $negocio->temporal,
+                'EMAIL_SEED' => $cliente->email,
             ],
             'clientes' => [$cliente],
             'vms'      => VM::orderBy('nombre')->get(),
