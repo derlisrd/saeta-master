@@ -201,7 +201,7 @@ class DesplegarProyectoJob implements ShouldQueue
         $env .= "APP_ENV=production\n";
         $env .= "APP_KEY=\n";
         $env .= "APP_DEBUG=false\n";
-        $env .= "APP_URL={$this->fullDomain}\n\n";
+        $env .= "APP_URL={$this->fullUrl}\n\n";
 
         $env .= "DB_CONNECTION={$d->db_connection}\n";
         $env .= "DB_HOST={$d->db_host}\n";
